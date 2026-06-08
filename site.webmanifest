@@ -1,0 +1,23 @@
+{
+  "name": "ZameenTrace",
+  "short_name": "ZameenTrace",
+  "description": "Verified digital boundaries and parcel-level trust infrastructure for agricultural land in Pakistan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3efe7",
+  "theme_color": "#f3efe7",
+  "icons": [
+    {
+      "src": "assets/icons/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

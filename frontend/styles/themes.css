@@ -1,0 +1,190 @@
+// frontend/styles/themes.css
+/* Theme CSS Variables and Dark Mode Support */
+
+:root {
+  /* Light Theme (Default) */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f7fa;
+  --color-bg-tertiary: #e8eaef;
+  --color-text-primary: #1a1f2e;
+  --color-text-secondary: #8a8f99;
+  --color-border: #e8eaef;
+  --color-border-dark: #d0d5dd;
+
+  /* Brand Colors */
+  --color-primary: #3d9d8f;
+  --color-primary-dark: #2d7d70;
+  --color-emerald: #1d6d5f;
+  --color-teal: #4db8a6;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Semantic Colors */
+  --color-verified: #10b981;
+  --color-pending: #f59e0b;
+  --color-failed: #ef4444;
+  --color-draft: #a0a8b8;
+}
+
+/* Dark Mode Theme */
+[data-theme='dark'] {
+  --color-bg-primary: #0f1419;
+  --color-bg-secondary: #1a1f2e;
+  --color-bg-tertiary: #252d3d;
+  --color-text-primary: #f5f7fa;
+  --color-text-secondary: #a0a8b8;
+  --color-border: #2d3544;
+  --color-border-dark: #3d4657;
+
+  /* Brand Colors - Adjusted for dark mode */
+  --color-primary: #4db8a6;
+  --color-primary-dark: #3d9d8f;
+  --color-emerald: #2d9d90;
+  --color-teal: #5dd3c1;
+
+  /* Status Colors - Adjusted for dark mode */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
+
+  /* Semantic Colors */
+  --color-verified: #34d399;
+  --color-pending: #fbbf24;
+  --color-failed: #f87171;
+  --color-draft: #6b7280;
+}
+
+/* Smooth Transition for Theme Switch */
+* {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+/* Prefer Color Scheme Support (System Preference) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg-primary: #0f1419;
+    --color-bg-secondary: #1a1f2e;
+    --color-bg-tertiary: #252d3d;
+    --color-text-primary: #f5f7fa;
+    --color-text-secondary: #a0a8b8;
+    --color-border: #2d3544;
+    --color-border-dark: #3d4657;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Dark Mode Image Adjustment */
+@media (prefers-color-scheme: dark) {
+  img {
+    opacity: 0.9;
+  }
+
+  img:hover {
+    opacity: 1;
+  }
+}
+
+/* Form Elements */
+input,
+textarea,
+select {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Buttons */
+button {
+  color: var(--color-text-primary);
+}
+
+/* Cards and Panels */
+.card,
+[role='region'] {
+  background-color: var(--color-bg-primary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Code Blocks */
+code,
+pre {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+/* Tables */
+table {
+  border-color: var(--color-border);
+}
+
+th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+td {
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Modal/Overlay */
+[role='dialog'] {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+/* Alerts */
+.alert,
+[role='alert'] {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}

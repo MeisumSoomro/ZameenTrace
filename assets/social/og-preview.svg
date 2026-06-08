@@ -1,0 +1,23 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F3EFE7"/>
+  <circle cx="176" cy="134" r="180" fill="#295F4E" fill-opacity="0.08"/>
+  <circle cx="1072" cy="88" r="140" fill="#171411" fill-opacity="0.05"/>
+  <rect x="70" y="68" width="1060" height="494" rx="36" fill="white" fill-opacity="0.5" stroke="#171411" stroke-opacity="0.08"/>
+  <text x="104" y="156" fill="#295F4E" font-family="Arial, sans-serif" font-size="22" letter-spacing="4">ZAMEENTRACE</text>
+  <text x="104" y="280" fill="#171411" font-family="Georgia, serif" font-size="88">Land, made</text>
+  <text x="104" y="368" fill="#171411" font-family="Georgia, serif" font-size="88">precise.</text>
+  <text x="104" y="444" fill="#625A54" font-family="Arial, sans-serif" font-size="30">
+    Verified digital boundaries and parcel-level trust infrastructure
+  </text>
+  <text x="104" y="486" fill="#625A54" font-family="Arial, sans-serif" font-size="30">
+    for agricultural land in Pakistan.
+  </text>
+  <rect x="814" y="172" width="232" height="190" rx="28" fill="#FFFFFF" fill-opacity="0.78" stroke="#171411" stroke-opacity="0.08"/>
+  <path d="M842 314L879 228L959 208L1010 286L920 332L842 314Z" fill="#295F4E" fill-opacity="0.18" stroke="#295F4E" stroke-width="4"/>
+  <circle cx="879" cy="228" r="8" fill="#295F4E"/>
+  <circle cx="959" cy="208" r="8" fill="#295F4E"/>
+  <circle cx="1010" cy="286" r="8" fill="#295F4E"/>
+  <circle cx="920" cy="332" r="8" fill="#295F4E"/>
+  <text x="814" y="424" fill="#171411" font-family="Arial, sans-serif" font-size="24">GPS trace locked</text>
+  <text x="814" y="462" fill="#625A54" font-family="Arial, sans-serif" font-size="22">Boundary confidence 98.4%</text>
+</svg>

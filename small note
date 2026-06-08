@@ -1,0 +1,23 @@
+The site still uses the placeholder domain https://zameentrace.com in the metadata because you only wanted the email added for now. When you’re ready, I can swap that everywhere in one quick pass.
+
+We have not installed or generated fresh workspace lockfiles yet, but that does not block STEP 2 schema design.
+The old root landing page is still preserved, which is fine.
+
+I also renamed the migration from the old placeholder-style name to:
+database/migrations/0001_core_schema.sql
+
+---
+
+prompt to add 
+
+**Prompt:**
+
+Design a minimalist, agriculture-focused web UI for a land mapping and dispute prevention platform called “Nishandayi”. The design should feel calm, trustworthy, and institutional rather than flashy or trendy. Use a neutral, nature-inspired color palette with a soft off-white background (#FAFAFA), strong primary text (#111111), muted secondary text (#6B7280), and a single accent color such as deep green (#1F7A63) or earthy brown (#7A5C3A) used only for buttons, links, and key highlights.
+
+Implement strong typography hierarchy using a clean sans-serif font (Inter, Manrope, or Poppins). Use large bold headings (48–64px) for hero sections, medium semi-bold headings (24–32px) for section titles, and readable body text (16–18px). Ensure clear visual contrast through size, weight, and spacing rather than excessive colors.
+
+Structure the layout with generous whitespace and clear section separation: Hero, Problem, Solution, How It Works, and Call-to-Action. Each section should feel distinct with vertical spacing (60–100px). Avoid clutter, heavy graphics, or excessive animations—use only subtle transitions and hover effects.
+
+Design simple, high-contrast buttons: primary buttons should use the accent color with white text and slight rounding; secondary buttons should be outlined or muted. Include thin dividers (#E5E7EB) and very subtle shadows to create depth without breaking minimalism.
+
+The UI must be mobile-first, accessible, and easy to understand for low-literacy users in rural Pakistan. Prioritize clarity, readability, and intuitive layout over decoration. The final result should visually communicate precision, trust, and simplicity—like a digital land registry system rather than a typical startup website.

@@ -1,0 +1,248 @@
+/* styles/responsive.css */
+/* ZameenTrace Mobile & Responsive Design */
+
+/* Mobile First Approach */
+
+/* ===== MOBILE (< 768px) ===== */
+
+.hero-section {
+  height: 80vh;
+  padding: 16px;
+}
+
+.hero-title {
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.search-container {
+  width: 100%;
+  max-width: none;
+  padding: 20px;
+}
+
+.search-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-button {
+  width: 100%;
+  padding: 12px 16px;
+  min-height: 44px; /* Touch target minimum */
+}
+
+.feature-grid {
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 24px 16px;
+}
+
+.cta-links {
+  flex-direction: column;
+  gap: 16px;
+  font-size: 13px;
+}
+
+/* KPI Cards - Stack vertically */
+.kpi-container {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.kpi-card {
+  padding: 16px;
+}
+
+.report-tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: 0;
+}
+
+.report-tab {
+  padding: 12px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+/* Touch-friendly buttons and inputs */
+button, input, select, textarea {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+.glass-panel {
+  padding: 16px;
+}
+
+/* Hamburger menu (for future navigation) */
+.mobile-nav-toggle {
+  display: block;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ===== TABLET (768px - 1024px) ===== */
+
+@media (min-width: 768px) {
+  .hero-section {
+    height: 90vh;
+    padding: 32px;
+  }
+
+  .hero-title {
+    font-size: 48px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+  }
+
+  .search-tabs {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 48px 32px;
+  }
+
+  .kpi-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .report-tabs {
+    overflow-x: visible;
+  }
+
+  .mobile-nav-toggle {
+    display: none;
+  }
+
+  .cta-links {
+    flex-direction: row;
+  }
+}
+
+/* ===== DESKTOP (> 1024px) ===== */
+
+@media (min-width: 1024px) {
+  .hero-section {
+    height: 100vh;
+    padding: 48px;
+  }
+
+  .hero-title {
+    font-size: 64px;
+  }
+
+  .hero-subtitle {
+    font-size: 20px;
+  }
+
+  .search-tabs {
+    gap: 12px;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 64px 48px;
+  }
+
+  .kpi-container {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+}
+
+/* ===== LARGE DESKTOP (> 1400px) ===== */
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .feature-grid {
+    padding: 96px 64px;
+  }
+}
+
+/* ===== LANDSCAPE MODE (MOBILE) ===== */
+
+@media (max-height: 500px) {
+  .hero-section {
+    height: 100vh;
+    padding: 12px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .search-container {
+    padding: 16px;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .search-container,
+  .cta-links,
+  .mobile-nav-toggle {
+    display: none;
+  }
+
+  .report-content {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* ===== HIGH DPI DEVICES (RETINA) ===== */
+
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: subpixel-antialiased;
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== DARK MODE ===== */
+
+@media (prefers-color-scheme: dark) {
+  /* System prefers dark mode - will be handled by theme toggle */
+}

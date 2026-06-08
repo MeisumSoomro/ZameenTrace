@@ -1,0 +1,40 @@
+{
+  "name": "zameentrace-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Full-stack scaffold for ZameenTrace, a land mapping and trust infrastructure platform.",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:backend": "npm --workspace backend run dev",
+    "start:frontend": "npm --workspace frontend run start",
+    "start:backend": "npm --workspace backend run start",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "zameentrace",
+    "agriculture",
+    "land-mapping",
+    "postgis",
+    "pakistan"
+  ],
+  "author": "ZameenTrace",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5"
+  },
+  "lint-staged": {
+    "backend/src/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "frontend/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
