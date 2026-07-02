@@ -1,5 +1,6 @@
 import { appConfig } from '@/lib/config';
 
+// Provide demo parcel data so the UI still renders when the backend is unavailable.
 export const fallbackParcels = [
   {
     id: 'sample-1',
@@ -66,6 +67,7 @@ export const fallbackParcels = [
   },
 ];
 
+// Fetch parcel records from the backend using the current filter state.
 export async function fetchRegionalParcels(filters) {
   const params = new URLSearchParams();
 
@@ -89,6 +91,7 @@ export async function fetchRegionalParcels(filters) {
   return response.json();
 }
 
+// Submit a boundary change to the backend and return the updated parcel payload.
 export async function submitBoundaryUpdate(parcelId, payload, token) {
   const response = await fetch(
     `${appConfig.apiBaseUrl}/parcels/${parcelId}/boundary`,
@@ -109,6 +112,7 @@ export async function submitBoundaryUpdate(parcelId, payload, token) {
   return response.json();
 }
 
+// Submit a verification decision to the backend so the parcel status can update.
 export async function submitVerification(parcelId, payload, token) {
   const response = await fetch(
     `${appConfig.apiBaseUrl}/parcels/${parcelId}/verify`,

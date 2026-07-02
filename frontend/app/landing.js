@@ -4,14 +4,81 @@ import { useEffect, useRef, useState } from 'react';
 import '../styles/zameentrace.css';
 import '../styles/landing-expanded.css';
 
+// Reusable UI content keeps the landing page easier to scan and extend.
+const REPORT_TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'satellite', label: 'Satellite' },
+  { id: 'ownership', label: 'Ownership' },
+  { id: 'verification', label: 'Verification' },
+  { id: 'risk', label: 'Risk' },
+  { id: 'infrastructure', label: 'Infrastructure' },
+  { id: 'trends', label: 'Trends' },
+  { id: 'summary', label: 'AI Summary' },
+  { id: 'investment', label: 'Investment' },
+];
+
+const SEARCH_TYPES = [
+  { value: 'location', label: 'Location' },
+  { value: 'coordinates', label: 'Coordinates' },
+  { value: 'plot', label: 'Plot' },
+  { value: 'society', label: 'Society' },
+];
+
+const PROBLEM_CARDS = [
+  { stat: '47%', desc: 'Properties lack clear ownership documentation' },
+  { stat: '3-5 years', desc: 'Average time to resolve land disputes' },
+  { stat: '82%', desc: 'Investors report trust concerns' },
+  { stat: '100K+', desc: 'Cases pending in land courts' },
+];
+
+const PROCESS_STEPS = [
+  { num: '1', title: 'DISCOVER', desc: 'Search properties by location, plot number, or coordinates', icon: '🔍' },
+  { num: '2', title: 'VERIFY', desc: 'Cross-reference with official records, historical data & registries', icon: '✓' },
+  { num: '3', title: 'ANALYZE', desc: 'Get AI insights, market trends, risk assessments & investment metrics', icon: '📊' },
+];
+
+const TECHNOLOGY_CARDS = [
+  { title: 'GIS Mapping', desc: 'Precise geospatial intelligence with satellite imagery and cadastral overlays' },
+  { title: 'Geospatial Analytics', desc: 'Advanced spatial analysis to identify patterns and investment opportunities' },
+  { title: 'AI-Assisted Verification', desc: 'Machine learning algorithms cross-reference multiple data sources for accuracy' },
+  { title: 'Historical Record Indexing', desc: 'Complete ownership chain with temporal tracking and anomaly detection' },
+  { title: 'Predictive Intelligence', desc: 'Forecasting market trends and property value appreciation' },
+  { title: 'Blockchain Ready', desc: 'Future-proof audit trails for transparent ownership records' },
+];
+
+const MILESTONES = [
+  { phase: 'Phase 1', title: 'Land Verification Layer', status: '🔷 Current' },
+  { phase: 'Phase 2', title: 'Market Intelligence Engine', status: '🔶 Q2 2025' },
+  { phase: 'Phase 3', title: 'Government Integrations', status: '🟠 Q3 2025' },
+  { phase: 'Phase 4', title: 'AI Valuation Models', status: '🟠 Q4 2025' },
+  { phase: 'Phase 5', title: 'Developer API Ecosystem', status: '⚪ 2026' },
+  { phase: 'Phase 6', title: 'Nationwide Coverage', status: '⚪ 2026' },
+];
+
+const CUSTOMER_SEGMENTS = [
+  { title: 'For Investors', desc: 'Investment analysis and risk assessment' },
+  { title: 'For Developers', desc: 'Market intelligence and growth trends' },
+  { title: 'For Institutions', desc: 'Verification and due diligence support' },
+];
+
+const FEATURE_CARDS = [
+  { icon: '📜', title: 'Ownership History', desc: 'Complete chain with timestamps and verification' },
+  { icon: '✓', title: 'Land Verification', desc: 'Cross-reference with government registries' },
+  { icon: '🤖', title: 'AI Insights', desc: 'Market analysis and trends' },
+  { icon: '💼', title: 'Investment Analysis', desc: 'Risk and opportunity scoring' },
+  { icon: '🏗️', title: 'Infrastructure Monitoring', desc: 'Track development nearby' },
+  { icon: '📊', title: 'Market Intelligence', desc: 'Real-time data and analytics' },
+];
+
 export default function ZameenTraceLanding() {
   const mapRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState('location');
   const [reportTab, setReportTab] = useState('overview');
   const [L, setL] = useState(null);
+  const [backendStatus, setBackendStatus] = useState('checking');
 
-  // Initialize Leaflet
+  // Load Leaflet lazily so the landing page stays responsive and browser-friendly.
   useEffect(() => {
     const initMap = async () => {
       const leaflet = await import('leaflet');
@@ -20,7 +87,7 @@ export default function ZameenTraceLanding() {
     initMap();
   }, []);
 
-  // Initialize hero map
+  // Draw the hero map and sample boundaries once Leaflet is ready.
   useEffect(() => {
     if (L && mapRef.current && !mapRef.current._leaflet_id) {
       const map = L.map(mapRef.current).setView([30.3753, 69.3451], 5);
@@ -50,23 +117,39 @@ export default function ZameenTraceLanding() {
     }
   }, [L]);
 
-  const SampleReportTabs = () => {
-    const tabs = [
-      { id: 'overview', label: 'Overview' },
-      { id: 'satellite', label: 'Satellite' },
-      { id: 'ownership', label: 'Ownership' },
-      { id: 'verification', label: 'Verification' },
-      { id: 'risk', label: 'Risk' },
-      { id: 'infrastructure', label: 'Infrastructure' },
-      { id: 'trends', label: 'Trends' },
-      { id: 'summary', label: 'AI Summary' },
-      { id: 'investment', label: 'Investment' },
-    ];
+  // Check the backend health endpoint so the UI can show whether the API is reachable.
+  useEffect(() => {
+    let isMounted = true;
+    const checkBackendHealth = async () => {
+      const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
+      const healthUrl = `${apiBaseUrl}/health`;
 
+      try {
+        const response = await fetch(healthUrl, { cache: 'no-store' });
+        const data = response.ok ? await response.json() : null;
+
+        if (isMounted) {
+          setBackendStatus(response.ok && data?.status === 'ok' ? 'online' : 'offline');
+        }
+      } catch {
+        if (isMounted) {
+          setBackendStatus('offline');
+        }
+      }
+    };
+
+    checkBackendHealth();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Render the sample report tabs so the UI can demonstrate the product story clearly.
+  const SampleReportTabs = () => {
     return (
       <div className="glass-panel" style={{ padding: '32px', marginTop: '32px' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', overflowX: 'auto' }}>
-          {tabs.map((tab) => (
+          {REPORT_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setReportTab(tab.id)}
@@ -144,7 +227,7 @@ export default function ZameenTraceLanding() {
             <div style={{ marginBottom: '24px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#8a8f99', display: 'block', marginBottom: '12px' }}>Search Type</label>
               <div style={{ display: 'flex', gap: '12px' }}>
-                {[{ value: 'location', label: 'Location' }, { value: 'coordinates', label: 'Coordinates' }, { value: 'plot', label: 'Plot' }, { value: 'society', label: 'Society' }].map((type) => (
+                {SEARCH_TYPES.map((type) => (
                   <button key={type.value} onClick={() => setSearchType(type.value)} style={{ flex: 1, padding: '12px', border: searchType === type.value ? '1px solid #3d9d8f' : '1px solid rgba(255, 255, 255, 0.2)', background: searchType === type.value ? 'rgba(61, 157, 143, 0.15)' : 'transparent', color: '#fff', borderRadius: '8px', cursor: 'pointer', transition: 'all 300ms ease', fontSize: '14px', fontWeight: 500 }}>{type.label}</button>
                 ))}
               </div>
@@ -165,7 +248,7 @@ export default function ZameenTraceLanding() {
           <p style={{ textAlign: 'center', color: '#a8afa7', marginBottom: '64px', maxWidth: '700px', margin: '0 auto 64px' }}>Fragmented records, disputed ownership, and lack of transparency make property investment risky</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
-            {[{ stat: '47%', desc: 'Properties lack clear ownership documentation' }, { stat: '3-5 years', desc: 'Average time to resolve land disputes' }, { stat: '82%', desc: 'Investors report trust concerns' }, { stat: '100K+', desc: 'Cases pending in land courts' }].map((card, i) => (
+            {PROBLEM_CARDS.map((card, i) => (
               <div key={i} className="glass-panel" style={{ padding: '32px', textAlign: 'center', transition: 'all 300ms ease' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-8px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                 <p style={{ fontSize: '48px', fontWeight: 700, color: '#3d9d8f', marginBottom: '12px' }}>{card.stat}</p>
                 <p style={{ fontSize: '14px', color: '#a8afa7' }}>{card.desc}</p>
@@ -182,11 +265,7 @@ export default function ZameenTraceLanding() {
           <p style={{ textAlign: 'center', color: '#a8afa7', marginBottom: '64px', fontSize: '16px' }}>A three-stage intelligence engine powered by GIS, AI, and geospatial analytics</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-            {[
-              { num: '1', title: 'DISCOVER', desc: 'Search properties by location, plot number, or coordinates', icon: '🔍' },
-              { num: '2', title: 'VERIFY', desc: 'Cross-reference with official records, historical data & registries', icon: '✓' },
-              { num: '3', title: 'ANALYZE', desc: 'Get AI insights, market trends, risk assessments & investment metrics', icon: '📊' }
-            ].map((stage, i) => (
+            {PROCESS_STEPS.map((stage, i) => (
               <div key={i} className="glass-panel" style={{ padding: '32px', textAlign: 'center', position: 'relative' }}>
                 <p style={{ fontSize: '56px', marginBottom: '16px' }}>{stage.icon}</p>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: '#3d9d8f', marginBottom: '12px', textTransform: 'uppercase' }}>Stage {stage.num}</p>
@@ -213,14 +292,7 @@ export default function ZameenTraceLanding() {
           <h2 style={{ textAlign: 'center', marginBottom: '64px', fontSize: '48px', color: '#fff' }}>Technology Behind ZameenTrace</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-            {[
-              { title: 'GIS Mapping', desc: 'Precise geospatial intelligence with satellite imagery and cadastral overlays' },
-              { title: 'Geospatial Analytics', desc: 'Advanced spatial analysis to identify patterns and investment opportunities' },
-              { title: 'AI-Assisted Verification', desc: 'Machine learning algorithms cross-reference multiple data sources for accuracy' },
-              { title: 'Historical Record Indexing', desc: 'Complete ownership chain with temporal tracking and anomaly detection' },
-              { title: 'Predictive Intelligence', desc: 'Forecasting market trends and property value appreciation' },
-              { title: 'Blockchain Ready', desc: 'Future-proof audit trails for transparent ownership records' }
-            ].map((tech, i) => (
+            {TECHNOLOGY_CARDS.map((tech, i) => (
               <div key={i} className="glass-panel" style={{ padding: '32px', transition: 'all 300ms ease' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-8px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                 <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '12px', color: '#3d9d8f' }}>{tech.title}</h3>
                 <p style={{ fontSize: '14px', color: '#a8afa7' }}>{tech.desc}</p>
@@ -236,14 +308,7 @@ export default function ZameenTraceLanding() {
           <h2 style={{ textAlign: 'center', marginBottom: '64px', fontSize: '48px', color: '#fff' }}>Our Vision: Pakistan's Property Intelligence Infrastructure</h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {[
-              { phase: 'Phase 1', title: 'Land Verification Layer', status: '🔷 Current' },
-              { phase: 'Phase 2', title: 'Market Intelligence Engine', status: '🔶 Q2 2025' },
-              { phase: 'Phase 3', title: 'Government Integrations', status: '🟠 Q3 2025' },
-              { phase: 'Phase 4', title: 'AI Valuation Models', status: '🟠 Q4 2025' },
-              { phase: 'Phase 5', title: 'Developer API Ecosystem', status: '⚪ 2026' },
-              { phase: 'Phase 6', title: 'Nationwide Coverage', status: '⚪ 2026' }
-            ].map((milestone, i) => (
+            {MILESTONES.map((milestone, i) => (
               <div key={i} className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div><p style={{ color: '#3d9d8f', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '8px' }}>{milestone.phase}</p><h3 style={{ fontSize: '18px', fontWeight: 600, color: '#fff' }}>{milestone.title}</h3></div>
                 <p style={{ fontSize: '16px' }}>{milestone.status}</p>
@@ -262,7 +327,7 @@ export default function ZameenTraceLanding() {
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginTop: '64px' }}>
-            {[{ title: 'For Investors', desc: 'Investment analysis and risk assessment' }, { title: 'For Developers', desc: 'Market intelligence and growth trends' }, { title: 'For Institutions', desc: 'Verification and due diligence support' }].map((segment, i) => (
+            {CUSTOMER_SEGMENTS.map((segment, i) => (
               <div key={i} style={{ padding: '24px' }}><p style={{ fontSize: '14px', color: '#3d9d8f', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase' }}>{segment.title}</p><p style={{ fontSize: '14px', color: '#a8afa7' }}>{segment.desc}</p></div>
             ))}
           </div>
@@ -286,14 +351,7 @@ export default function ZameenTraceLanding() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h2 style={{ textAlign: 'center', marginBottom: '64px', fontSize: '48px', color: '#fff' }}>Core Capabilities</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            {[
-              { icon: '📜', title: 'Ownership History', desc: 'Complete chain with timestamps and verification' },
-              { icon: '✓', title: 'Land Verification', desc: 'Cross-reference with government registries' },
-              { icon: '🤖', title: 'AI Insights', desc: 'Market analysis and trends' },
-              { icon: '💼', title: 'Investment Analysis', desc: 'Risk and opportunity scoring' },
-              { icon: '🏗️', title: 'Infrastructure Monitoring', desc: 'Track development nearby' },
-              { icon: '📊', title: 'Market Intelligence', desc: 'Real-time data and analytics' }
-            ].map((feature, i) => (
+            {FEATURE_CARDS.map((feature, i) => (
               <div key={i} className="glass-panel" style={{ padding: '32px', transition: 'all 300ms ease' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = '0 0 40px rgba(61, 157, 143, 0.2)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                 <div style={{ fontSize: '36px', marginBottom: '16px' }}>{feature.icon}</div>
                 <h3 style={{ fontSize: '18px', marginBottom: '12px', color: '#fff', fontWeight: 600 }}>{feature.title}</h3>

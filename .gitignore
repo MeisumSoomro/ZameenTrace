@@ -9,4 +9,4 @@ build/
 .env.production.local
 coverage/
 *.log
-
+backend/data/lead-submissions.json

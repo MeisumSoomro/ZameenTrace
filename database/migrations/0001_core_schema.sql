@@ -67,6 +67,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Users table stores basic identity for farmers, neighbors, operators, and admins.
+-- password_hash is stored directly (not in metadata) for clarity and security.
+-- metadata JSONB allows future extensibility without schema migrations.
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name TEXT NOT NULL,
@@ -74,9 +77,11 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT,
   national_id TEXT,
   organization_name TEXT,
+  password_hash TEXT,
   role user_role NOT NULL DEFAULT 'farmer',
   preferred_language TEXT DEFAULT 'en',
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT users_contact_check CHECK (email IS NOT NULL OR phone IS NOT NULL)

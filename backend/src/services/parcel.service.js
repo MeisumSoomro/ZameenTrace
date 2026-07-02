@@ -1,5 +1,40 @@
+// backend/src/services/parcel.service.js
+// Core business logic for the parcel workflow — the most important file in the backend.
+// Handles: creation, detail lookup, boundary updates (versioning), and verification.
+// All database operations use transactions where multiple writes are needed.
+// PostGIS functions (ST_GeomFromGeoJSON, ST_AsGeoJSON, ST_Area, ST_Centroid) handle
+// geometry storage and computation — the database triggers auto-calculate area and centroid.
+
 const { pool } = require('../utils/db');
 
+// ---------------------------------------------------------------------------
+// Error helpers — create structured errors with HTTP status codes.
+// These are caught by the Express error middleware and returned as JSON.
+// ---------------------------------------------------------------------------
+
+function createBadRequestError(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+}
+
+function createNotFoundError(message) {
+  const error = new Error(message);
+  error.statusCode = 404;
+  return error;
+}
+
+// ---------------------------------------------------------------------------
+// Geometry helpers — validate and format GeoJSON for PostGIS storage.
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate and normalize parcel boundary coordinates before they are stored.
+ * GeoJSON Polygon rules:
+ *   - At least 4 coordinate pairs (3 unique points + closing point).
+ *   - Each pair is [longitude, latitude] with numeric values.
+ *   - The polygon must be closed (first point === last point).
+ */
 function buildPolygonGeoJson(coordinates) {
   if (!Array.isArray(coordinates) || coordinates.length < 4) {
     throw createBadRequestError(
@@ -7,6 +42,7 @@ function buildPolygonGeoJson(coordinates) {
     );
   }
 
+  // Normalize each point to ensure clean numeric values.
   const normalized = coordinates.map((point) => {
     if (!Array.isArray(point) || point.length !== 2) {
       throw createBadRequestError(
@@ -26,6 +62,7 @@ function buildPolygonGeoJson(coordinates) {
     return [longitude, latitude];
   });
 
+  // GeoJSON polygons must be closed — the first and last point must match.
   const firstPoint = normalized[0];
   const lastPoint = normalized[normalized.length - 1];
 
@@ -41,18 +78,12 @@ function buildPolygonGeoJson(coordinates) {
   };
 }
 
-function createBadRequestError(message) {
-  const error = new Error(message);
-  error.statusCode = 400;
-  return error;
-}
+// ---------------------------------------------------------------------------
+// Row mappers — transform raw PostgreSQL rows into clean API response objects.
+// These ensure consistent property names (camelCase) for the frontend.
+// ---------------------------------------------------------------------------
 
-function createNotFoundError(message) {
-  const error = new Error(message);
-  error.statusCode = 404;
-  return error;
-}
-
+/** Map a land_parcels row to an API-friendly object. */
 function mapParcelRow(row) {
   if (!row) {
     return null;
@@ -81,6 +112,7 @@ function mapParcelRow(row) {
   };
 }
 
+/** Map a land_parcel_versions row to an API-friendly object. */
 function mapVersionRow(row) {
   if (!row) {
     return null;
@@ -105,6 +137,7 @@ function mapVersionRow(row) {
   };
 }
 
+/** Map a verification_approvals row to an API-friendly object. */
 function mapApprovalRow(row) {
   return {
     id: row.id,
@@ -120,6 +153,7 @@ function mapApprovalRow(row) {
   };
 }
 
+/** Map a dispute_records row to an API-friendly object. */
 function mapDisputeRow(row) {
   return {
     id: row.id,
@@ -138,6 +172,19 @@ function mapDisputeRow(row) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Status recalculation — derives parcel status from its verification approvals.
+// ---------------------------------------------------------------------------
+
+/**
+ * Recalculate the parcel's status based on all approvals for the current version.
+ * Status rules:
+ *   - Any rejection → 'disputed'
+ *   - All approved → 'verified'
+ *   - Some approvals but not all → 'pending_verification'
+ *   - No approvals → 'draft'
+ * This function runs inside a transaction so it sees a consistent snapshot.
+ */
 async function recalculateParcelStatus(client, parcelDbId, currentVersionId) {
   const approvalsResult = await client.query(
     `
@@ -150,19 +197,24 @@ async function recalculateParcelStatus(client, parcelDbId, currentVersionId) {
 
   const statuses = approvalsResult.rows.map((row) => row.status);
 
+  // Default to draft if no approvals exist.
   let parcelStatus = 'draft';
 
   if (statuses.includes('rejected')) {
+    // Any rejection makes the parcel disputed — this is a conservative approach.
     parcelStatus = 'disputed';
   } else if (
     statuses.length > 0 &&
     statuses.every((status) => status === 'approved')
   ) {
+    // All approvals are positive — the parcel is verified.
     parcelStatus = 'verified';
   } else if (statuses.length > 0) {
+    // Some approvals exist but not all are 'approved' — still pending.
     parcelStatus = 'pending_verification';
   }
 
+  // Update the parcel row and return the updated record.
   const result = await client.query(
     `
       UPDATE land_parcels
@@ -195,6 +247,19 @@ async function recalculateParcelStatus(client, parcelDbId, currentVersionId) {
   return mapParcelRow(result.rows[0]);
 }
 
+// ---------------------------------------------------------------------------
+// CRUD operations — the main parcel workflow functions.
+// ---------------------------------------------------------------------------
+
+/**
+ * CREATE PARCEL
+ * Persist a new parcel and its initial version (version_number = 1).
+ * This is a transactional operation:
+ *   1. Insert into land_parcels
+ *   2. Insert version 1 into land_parcel_versions
+ *   3. Link the parcel to its initial version via current_version_id
+ * The database triggers auto-calculate area_sqm and centroid from the boundary.
+ */
 async function createParcel(payload) {
   const {
     parcelId,
@@ -211,6 +276,7 @@ async function createParcel(payload) {
     metadata = {},
   } = payload;
 
+  // Validate required fields — these are the minimum for a meaningful parcel record.
   if (!parcelId || !ownerName || !province || !district) {
     throw createBadRequestError(
       'parcelId, ownerName, province, and district are required.'
@@ -223,6 +289,7 @@ async function createParcel(payload) {
   try {
     await client.query('BEGIN');
 
+    // Step 1: Insert the parcel record with its boundary geometry.
     const parcelInsert = await client.query(
       `
         INSERT INTO land_parcels (
@@ -284,6 +351,7 @@ async function createParcel(payload) {
 
     const parcelRow = parcelInsert.rows[0];
 
+    // Step 2: Create version 1 — the initial state of this parcel.
     const versionInsert = await client.query(
       `
         INSERT INTO land_parcel_versions (
@@ -337,6 +405,7 @@ async function createParcel(payload) {
 
     const versionRow = versionInsert.rows[0];
 
+    // Step 3: Link the parcel to its initial version.
     const parcelUpdate = await client.query(
       `
         UPDATE land_parcels
@@ -380,7 +449,14 @@ async function createParcel(payload) {
   }
 }
 
+/**
+ * GET PARCEL BY IDENTIFIER
+ * Fetch a single parcel with its complete version history, approvals, and disputes.
+ * The UI detail panel shows all of this information for a selected parcel.
+ * Uses parallel queries for versions, approvals, and disputes to minimize latency.
+ */
 async function getParcelByIdentifier(parcelIdentifier) {
+  // Look up the parcel by its human-readable parcel_id (e.g. 'ZT-PK-SND-0421').
   const parcelResult = await pool.query(
     `
       SELECT
@@ -415,6 +491,7 @@ async function getParcelByIdentifier(parcelIdentifier) {
 
   const parcel = mapParcelRow(parcelResult.rows[0]);
 
+  // Fetch related data in parallel — versions, approvals, and disputes.
   const [versionResult, approvalsResult, disputesResult] = await Promise.all([
     pool.query(
       `
@@ -491,11 +568,25 @@ async function getParcelByIdentifier(parcelIdentifier) {
   };
 }
 
+/**
+ * UPDATE PARCEL BOUNDARY
+ * Create a new version when a parcel boundary changes while keeping the prior state intact.
+ * This is the core of the version history feature — every boundary change is recorded.
+ *
+ * Transaction steps:
+ *   1. Look up the parcel (with row lock via FOR UPDATE)
+ *   2. Determine the next version number
+ *   3. Insert a new version record
+ *   4. Update the parcel's boundary, owner info, and current_version_id
+ *   5. Remove stale approvals from old versions (they don't apply to the new boundary)
+ *
+ * ownerName and coordinates are optional — if not provided, the existing values are preserved.
+ */
 async function updateParcelBoundary(parcelIdentifier, payload) {
   const {
-    coordinates,
+    coordinates = null,
     ownerUserId = null,
-    ownerName,
+    ownerName = null,
     ownerPhone = null,
     ownerNationalId = null,
     changedByUserId = null,
@@ -503,21 +594,17 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
     metadata = {},
   } = payload;
 
-  if (!ownerName) {
-    throw createBadRequestError(
-      'ownerName is required when creating a new parcel version.'
-    );
-  }
-
-  const polygonGeoJson = buildPolygonGeoJson(coordinates);
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
 
+    // Lock the parcel row to prevent concurrent updates from creating version conflicts.
     const parcelLookup = await client.query(
       `
-        SELECT id, parcel_id, metadata
+        SELECT id, parcel_id, owner_name_snapshot, owner_phone_snapshot,
+               owner_national_id_snapshot, owner_user_id,
+               ST_AsGeoJSON(boundary) AS boundary, metadata
         FROM land_parcels
         WHERE parcel_id = $1
         FOR UPDATE
@@ -529,8 +616,26 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
       throw createNotFoundError('Parcel not found.');
     }
 
-    const parcelDbId = parcelLookup.rows[0].id;
+    const existingParcel = parcelLookup.rows[0];
+    const parcelDbId = existingParcel.id;
 
+    // Use provided values or fall back to existing parcel data.
+    const effectiveOwnerName = ownerName || existingParcel.owner_name_snapshot;
+    const effectiveOwnerPhone = ownerPhone || existingParcel.owner_phone_snapshot;
+    const effectiveOwnerNationalId = ownerNationalId || existingParcel.owner_national_id_snapshot;
+    const effectiveOwnerUserId = ownerUserId || existingParcel.owner_user_id;
+
+    // If new coordinates are provided, validate them. Otherwise reuse the existing boundary.
+    let polygonGeoJsonStr;
+    if (coordinates && Array.isArray(coordinates) && coordinates.length >= 4) {
+      const polygonGeoJson = buildPolygonGeoJson(coordinates);
+      polygonGeoJsonStr = JSON.stringify(polygonGeoJson);
+    } else {
+      // Reuse existing boundary — the parcel lookup already has it as GeoJSON.
+      polygonGeoJsonStr = existingParcel.boundary;
+    }
+
+    // Determine the next version number by checking the max existing version.
     const versionLookup = await client.query(
       `
         SELECT COALESCE(MAX(version_number), 0) AS max_version
@@ -542,6 +647,7 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
 
     const nextVersion = Number(versionLookup.rows[0].max_version) + 1;
 
+    // Insert the new version record with the updated boundary.
     const versionInsert = await client.query(
       `
         INSERT INTO land_parcel_versions (
@@ -583,11 +689,11 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
       [
         parcelDbId,
         nextVersion,
-        ownerUserId,
-        ownerName,
-        ownerPhone,
-        ownerNationalId,
-        JSON.stringify(polygonGeoJson),
+        effectiveOwnerUserId,
+        effectiveOwnerName,
+        effectiveOwnerPhone,
+        effectiveOwnerNationalId,
+        polygonGeoJsonStr,
         changedByUserId,
         changeReason,
         JSON.stringify(metadata),
@@ -596,6 +702,7 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
 
     const currentVersion = versionInsert.rows[0];
 
+    // Update the parcel's current state to match the new version.
     const parcelUpdate = await client.query(
       `
         UPDATE land_parcels
@@ -632,16 +739,17 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
       `,
       [
         parcelDbId,
-        ownerUserId,
-        ownerName,
-        ownerPhone,
-        ownerNationalId,
-        JSON.stringify(polygonGeoJson),
+        effectiveOwnerUserId,
+        effectiveOwnerName,
+        effectiveOwnerPhone,
+        effectiveOwnerNationalId,
+        polygonGeoJsonStr,
         JSON.stringify(metadata),
         currentVersion.id,
       ]
     );
 
+    // Remove approvals from old versions — they don't apply to the new boundary.
     await client.query(
       `
         DELETE FROM verification_approvals
@@ -664,6 +772,14 @@ async function updateParcelBoundary(parcelIdentifier, payload) {
   }
 }
 
+/**
+ * VERIFY PARCEL
+ * Record a verification decision from a neighbor, operator, or stakeholder.
+ * Uses UPSERT so the same approver can change their decision on the same version.
+ *
+ * After recording the approval, the parcel's status is recalculated based on
+ * all current approvals for the active version.
+ */
 async function verifyParcel(parcelIdentifier, payload) {
   const {
     approverUserId,
@@ -672,6 +788,7 @@ async function verifyParcel(parcelIdentifier, payload) {
     comments = null,
   } = payload;
 
+  // Both fields are required — the system needs to know who approved and what they decided.
   if (!approverUserId || !status) {
     throw createBadRequestError('approverUserId and status are required.');
   }
@@ -688,6 +805,7 @@ async function verifyParcel(parcelIdentifier, payload) {
   try {
     await client.query('BEGIN');
 
+    // Look up the parcel and lock it for the duration of this transaction.
     const parcelLookup = await client.query(
       `
         SELECT id, current_version_id
@@ -705,12 +823,15 @@ async function verifyParcel(parcelIdentifier, payload) {
     const parcelDbId = parcelLookup.rows[0].id;
     const currentVersionId = parcelLookup.rows[0].current_version_id;
 
+    // A parcel must have an active version before it can be verified.
     if (!currentVersionId) {
       throw createBadRequestError(
         'Parcel does not have an active version available for verification.'
       );
     }
 
+    // UPSERT: insert a new approval or update an existing one for the same approver+version.
+    // This prevents duplicate approvals and allows users to change their decision.
     const approvalResult = await client.query(
       `
         INSERT INTO verification_approvals (
@@ -751,6 +872,7 @@ async function verifyParcel(parcelIdentifier, payload) {
       ]
     );
 
+    // Recalculate parcel status from all approvals — this is the source of truth.
     const parcel = await recalculateParcelStatus(
       client,
       parcelDbId,
@@ -771,15 +893,22 @@ async function verifyParcel(parcelIdentifier, payload) {
   }
 }
 
+/**
+ * LIST PARCELS BY REGION
+ * Query parcels by province, district, tehsil, village, or free-text search.
+ * At least one filter is required to avoid returning the entire table.
+ * The frontend filter toolbar sends these parameters on every filter change.
+ */
 async function listParcelsByRegion(filters) {
-  const { province, district, tehsil, village } = filters;
+  const { province, district, tehsil, village, q } = filters;
 
-  if (!province && !district && !tehsil && !village) {
+  if (!province && !district && !tehsil && !village && !q) {
     throw createBadRequestError(
-      'At least one regional filter is required: province, district, tehsil, or village.'
+      'At least one regional filter or q search term is required.'
     );
   }
 
+  // Build the WHERE clause dynamically based on provided filters.
   const conditions = [];
   const values = [];
 
@@ -794,6 +923,19 @@ async function listParcelsByRegion(filters) {
       conditions.push(`${column} = $${values.length}`);
     }
   });
+
+  // Free-text search across multiple columns using ILIKE for case-insensitive matching.
+  if (q) {
+    values.push(`%${q}%`);
+    conditions.push(`(
+      parcel_id ILIKE $${values.length}
+      OR owner_name_snapshot ILIKE $${values.length}
+      OR province ILIKE $${values.length}
+      OR district ILIKE $${values.length}
+      OR tehsil ILIKE $${values.length}
+      OR village ILIKE $${values.length}
+    )`);
+  }
 
   const query = `
     SELECT
@@ -825,6 +967,7 @@ async function listParcelsByRegion(filters) {
 
   return {
     region: { province, district, tehsil, village },
+    query: q || null,
     count: result.rowCount,
     parcels: result.rows.map(mapParcelRow),
   };

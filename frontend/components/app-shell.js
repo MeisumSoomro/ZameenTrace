@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { fetchRegionalParcels, fallbackParcels } from '@/lib/api';
+import { fetchRegionalParcels, fallbackParcels, submitBoundaryUpdate, submitVerification } from '@/lib/api';
 import { appConfig } from '@/lib/config';
 import { enqueueOfflineAction, getOfflineQueue } from '@/lib/offline-sync';
 import { ParcelMap } from '@/components/parcel-map';
@@ -15,6 +15,7 @@ const defaultFilters = {
 };
 
 export function AppShell() {
+  // Keep the UI state simple and explicit so the parcel workflow is easy to follow.
   const [filters, setFilters] = useState(defaultFilters);
   const [parcels, setParcels] = useState(fallbackParcels);
   const [selectedParcelId, setSelectedParcelId] = useState(
@@ -23,6 +24,7 @@ export function AppShell() {
   const [loading, setLoading] = useState(true);
   const [submissionState, setSubmissionState] = useState('idle');
   const [verificationState, setVerificationState] = useState('idle');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const [offlineQueue, setOfflineQueue] = useState([]);
 
   useEffect(() => {
@@ -78,29 +80,80 @@ export function AppShell() {
     [parcels, selectedParcelId]
   );
 
+  // Update filter state as the user narrows the parcel list.
   function updateFilter(event) {
     const { name, value } = event.target;
     setFilters((current) => ({ ...current, [name]: value }));
   }
 
-  function handleBoundarySubmit(event) {
+  // Submit a real parcel boundary update to the backend when possible, then fall back to offline queueing.
+  async function handleBoundarySubmit(event) {
     event.preventDefault();
-    const nextQueue = enqueueOfflineAction({
-      type: 'boundary_update',
-      parcelId: selectedParcel?.parcelId || null,
-    });
-    setOfflineQueue(nextQueue);
-    setSubmissionState('saved');
+
+    if (!selectedParcel?.parcelId) {
+      setSubmissionState('error');
+      setFeedbackMessage('Select a parcel before submitting an update.');
+      return;
+    }
+
+    const payload = {
+      ownerName: selectedParcel.ownerName || 'Unknown owner',
+      ownerPhone: null,
+      ownerNationalId: null,
+      coordinates: selectedParcel.boundary?.coordinates?.[0] || [],
+      metadata: { source: 'frontend-form' },
+    };
+
+    try {
+      const result = await submitBoundaryUpdate(selectedParcel.parcelId, payload, null);
+      setSubmissionState('submitted');
+      setFeedbackMessage(result?.parcel ? 'Boundary update accepted by the backend.' : 'Boundary update submitted.');
+      setParcels((current) => current.map((parcel) => (parcel.parcelId === selectedParcel.parcelId ? { ...parcel, status: result?.parcel?.status || parcel.status } : parcel)));
+    } catch (_error) {
+      const nextQueue = enqueueOfflineAction({
+        type: 'boundary_update',
+        parcelId: selectedParcel?.parcelId || null,
+      });
+      setOfflineQueue(nextQueue);
+      setSubmissionState('saved');
+      setFeedbackMessage('Backend unavailable, so the request was queued for sync.');
+    }
   }
 
-  function handleVerify(event) {
+  // Submit a parcel verification decision to the backend when possible.
+  async function handleVerify(event) {
     event.preventDefault();
-    const nextQueue = enqueueOfflineAction({
-      type: 'verification',
-      parcelId: selectedParcel?.parcelId || null,
-    });
-    setOfflineQueue(nextQueue);
-    setVerificationState('submitted');
+
+    if (!selectedParcel?.parcelId) {
+      setVerificationState('error');
+      setFeedbackMessage('Select a parcel before submitting verification.');
+      return;
+    }
+
+    const form = event.currentTarget;
+    const role = form.elements[0]?.value || 'neighbor';
+    const decision = form.elements[1]?.value || 'approved';
+    const comment = form.elements[2]?.value || '';
+
+    try {
+      const result = await submitVerification(selectedParcel.parcelId, {
+        approverUserId: '00000000-0000-0000-0000-000000000001',
+        relationshipToParcel: role,
+        status: decision,
+        comments: comment,
+      }, null);
+
+      setVerificationState('submitted');
+      setFeedbackMessage(result?.parcel ? 'Verification accepted by the backend.' : 'Verification submitted.');
+    } catch (_error) {
+      const nextQueue = enqueueOfflineAction({
+        type: 'verification',
+        parcelId: selectedParcel?.parcelId || null,
+      });
+      setOfflineQueue(nextQueue);
+      setVerificationState('submitted');
+      setFeedbackMessage('Backend unavailable, so the verification was queued for sync.');
+    }
   }
 
   return (
@@ -330,11 +383,8 @@ export function AppShell() {
             <button className="primary-button" type="submit">
               Submit boundary for review
             </button>
-            {submissionState === 'saved' ? (
-              <p className="feedback">
-                Boundary request queued for sync. API hookup and offline handoff
-                are ready for the next pass.
-              </p>
+            {feedbackMessage ? (
+              <p className="feedback">{feedbackMessage}</p>
             ) : null}
           </form>
 
@@ -375,11 +425,8 @@ export function AppShell() {
             <button className="primary-button" type="submit">
               Submit verification
             </button>
-            {verificationState === 'submitted' ? (
-              <p className="feedback">
-                Verification queued for sync. This screen is prepared for `POST
-                /api/parcels/:parcelId/verify`.
-              </p>
+            {feedbackMessage ? (
+              <p className="feedback">{feedbackMessage}</p>
             ) : null}
           </form>
         </div>

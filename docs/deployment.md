@@ -49,3 +49,7 @@ Database:
 - run migrations before exposing write endpoints
 - keep `DEMO_AUTH_ENABLED=false` outside local development
 - move offline queue sync from local storage to a background sync strategy when the frontend PWA layer is added
+
+## Current project state
+
+The project is now organized around a working frontend shell, a backend health endpoint, and parcel-related API routes ready for integration. The main local verification completed here was the frontend test suite and a live backend health check. Full parcel submission testing still depends on a configured PostGIS database and real credentials.

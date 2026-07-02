@@ -1,300 +1,1481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZameenTrace | Land, made precise.</title>
-  <meta
-    name="description"
-    content="ZameenTrace maps agricultural land in Pakistan using GPS-based verification, unique parcel IDs, and trusted digital boundaries."
-  />
-  <meta
-    name="keywords"
-    content="Pakistan land mapping, agricultural GIS, GPS land verification, parcel IDs, digital land registry, ZameenTrace"
-  />
-  <meta name="theme-color" content="#f3efe7" />
-  <meta name="application-name" content="ZameenTrace" />
-  <meta name="apple-mobile-web-app-title" content="ZameenTrace" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta property="og:title" content="ZameenTrace | Land, made precise." />
-  <meta
-    property="og:description"
-    content="A trust infrastructure platform for agricultural land mapping and verified digital boundaries in Pakistan."
-  />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://zameentrace.com" />
-  <meta property="og:image" content="https://zameentrace.com/assets/social/og-preview.png" />
-  <meta property="og:image:alt" content="ZameenTrace social preview with the message Land, made precise." />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ZameenTrace | Land, made precise." />
-  <meta
-    name="twitter:description"
-    content="Verified digital boundaries and parcel-level trust infrastructure for agricultural land in Pakistan."
-  />
-  <meta name="twitter:image" content="https://zameentrace.com/assets/social/og-preview.png" />
-  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
-  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.svg" />
-  <link rel="manifest" href="site.webmanifest" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="assets/css/main.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZameenTrace | Land Intelligence for Pakistan</title>
+<meta name="description" content="ZameenTrace maps agricultural land in Pakistan using GPS-based verification, unique parcel IDs, and verified digital boundaries that reduce ambiguity on the ground."/>
+<meta name="theme-color" content="#f3efe7"/>
+<script>
+try {
+  const savedTheme = localStorage.getItem("zt-theme");
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
+  document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+} catch (_error) {
+  document.documentElement.dataset.theme = "light";
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f3efe7;
+  --bg-soft: #f8f5ef;
+  --surface: rgba(255,255,255,0.58);
+  --surface-strong: rgba(255,255,255,0.72);
+  --text: #171411;
+  --muted: #625a54;
+  --line: rgba(23,20,17,0.12);
+  --accent: #295f4e;
+  --accent-soft: rgba(41,95,78,0.08);
+  --accent-mid: rgba(41,95,78,0.18);
+  --shadow: 0 24px 80px rgba(31,24,17,0.08);
+  --max-width: 1160px;
+  --radius: 28px;
+}
+html[data-theme="dark"] {
+  --bg: #0a1510;
+  --bg-soft: #0d1c17;
+  --surface: rgba(255,255,255,0.05);
+  --surface-strong: rgba(255,255,255,0.08);
+  --text: #e8e2d9;
+  --muted: #a09890;
+  --line: rgba(255,255,255,0.12);
+  --accent: #a8d5a2;
+  --accent-soft: rgba(168,213,162,0.10);
+  --accent-mid: rgba(168,213,162,0.22);
+  --shadow: 0 28px 80px rgba(0,0,0,0.38);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-width:320px;
+  font-family:"Manrope",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top left,rgba(41,95,78,0.12),transparent 30%),
+    radial-gradient(circle at top right,rgba(91,78,62,0.08),transparent 24%),
+    linear-gradient(180deg,#f6f2ea 0%,#f1ede5 100%);
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(circle at top left,rgba(168,213,162,0.08),transparent 32%),
+    radial-gradient(circle at top right,rgba(200,169,110,0.08),transparent 26%),
+    linear-gradient(180deg,#0a1510 0%,#111f19 100%);
+}
+body.modal-open{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,a{transition:transform 220ms ease,background-color 220ms ease,border-color 220ms ease,color 220ms ease,opacity 220ms ease}
+button{font:inherit;cursor:pointer}
+ 
+.page-shell{width:min(calc(100% - 32px),var(--max-width));margin:0 auto;padding:20px 0 72px}
+ 
+/* ── NAV ── */
+.site-header{
+  position:sticky;top:12px;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 18px;margin-bottom:28px;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(248,245,239,0.82);backdrop-filter:blur(18px);
+}
+.menu-toggle{
+  display:inline-flex;flex-direction:column;justify-content:center;gap:5px;
+  width:44px;height:44px;padding:0;
+  border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,0.35);
+}
+.menu-toggle span{width:16px;height:1.5px;margin:0 auto;background:var(--text);transition:transform 220ms ease,opacity 220ms ease}
+body.menu-open .menu-toggle span:first-child{transform:translateY(3px) rotate(45deg)}
+body.menu-open .menu-toggle span:last-child{transform:translateY(-3px) rotate(-45deg)}
+.brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-0.03em}
+.brand-mark{width:12px;height:12px;border-radius:999px;background:linear-gradient(180deg,#2d6e5a 0%,#173f33 100%);box-shadow:0 0 0 6px rgba(41,95,78,0.1)}
+.site-nav{display:none;align-items:center;gap:24px;color:var(--muted);font-size:0.94rem}
+.site-nav a:hover,.nav-cta:hover{opacity:0.72}
+.nav-cta{padding:10px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:0.92rem;font-weight:700}
+.theme-toggle{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,0.32);color:var(--text);
+  font-size:0.82rem;font-weight:800;
+}
+.theme-toggle:hover{transform:translateY(-1px);background:var(--accent-soft)}
+.theme-toggle-icon{font-size:0.95rem;line-height:1}
+.theme-toggle-label{white-space:nowrap}
+html[data-theme="dark"] .site-header{background:rgba(10,21,16,0.76)}
+html[data-theme="dark"] .mobile-menu a{background:var(--surface)}
+html[data-theme="dark"] .theme-toggle{background:var(--surface);border-color:var(--line)}
+html[data-theme="dark"] .button-primary{background:var(--accent);color:#0a1510}
+html[data-theme="dark"] .button-secondary{background:var(--surface);color:var(--text)}
+html[data-theme="dark"] .report-shell{background:rgba(13,28,23,0.78)}
+html[data-theme="dark"] .report-topbar,
+html[data-theme="dark"] .report-tabs,
+html[data-theme="dark"] .rp-row,
+html[data-theme="dark"] .rp-risk-row,
+html[data-theme="dark"] .engine-detail{background:rgba(255,255,255,0.06)}
+html[data-theme="dark"] .rp-map-label{background:rgba(10,21,16,0.88);color:var(--text)}
+.mobile-menu{max-height:0;overflow:hidden;opacity:0;transition:max-height 260ms ease,opacity 220ms ease,margin-bottom 220ms ease}
+.mobile-menu-inner{display:grid;gap:10px;padding:0 8px}
+.mobile-menu a{padding:16px 18px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,0.45);box-shadow:var(--shadow)}
+body.menu-open .mobile-menu{max-height:500px;margin-bottom:18px;opacity:1}
+ 
+/* ── SHARED ── */
+.section{padding:34px 0}
+.eyebrow{margin:0 0 18px;color:var(--accent);text-transform:uppercase;letter-spacing:0.18em;font-size:0.74rem;font-weight:700}
+h1,h2,h3,p{margin:0}
+h1,h2,.vision-section h2{font-family:"Newsreader",serif;letter-spacing:-0.05em;font-weight:500}
+h1{max-width:10ch;font-size:clamp(3.4rem,10vw,7.2rem);line-height:0.96}
+h2{max-width:14ch;font-size:clamp(2rem,5vw,4rem);line-height:1.02}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border:1px solid transparent;border-radius:999px;font-weight:700;font-size:0.95rem}
+.button:hover{transform:translateY(-1px);opacity:0.9}
+.button-primary{background:var(--text);color:#f7f4ed}
+.button-secondary{background:transparent;border-color:var(--line);color:var(--text)}
+.button-accent{background:var(--accent);color:#fff}
+ 
+/* ── TOPOGRAPHIC DIVIDER ── */
+.topo-divider{position:relative;height:64px;overflow:hidden;margin:8px 0;pointer-events:none}
+.topo-divider svg{position:absolute;inset:0;width:100%;height:100%}
+ 
+/* ── HERO ── */
+.hero{padding:64px 0 46px}
+.hero-copy{max-width:640px;margin-top:24px;color:var(--muted);font-size:clamp(1.05rem,2.2vw,1.3rem);line-height:1.75}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.hero-grid{display:grid;gap:14px;margin-top:52px}
+.hero-grid div,.step,.cta-section,.split-section,.tech-section{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);backdrop-filter:blur(10px);box-shadow:var(--shadow)}
+.hero-grid div{padding:20px}
+.hero-grid span,.tech-list span{display:block;color:var(--muted);font-size:0.9rem}
+.hero-grid strong{display:block;margin-top:8px;font-size:1rem;line-height:1.5}
+ 
+/* ── EXISTING SECTIONS ── */
+.split-section,.tech-section,.cta-section{padding:28px}
+.section-heading{display:grid;gap:8px;margin-bottom:28px}
+.statement-stack{display:grid;gap:18px}
+.statement-stack p{font-size:clamp(1.25rem,3vw,2rem);line-height:1.2;letter-spacing:-0.04em}
+.statement-stack-compact p{padding-bottom:16px;border-bottom:1px solid rgba(23,20,17,0.08)}
+.steps{display:grid;gap:14px}
+.step{padding:22px}
+.step-number{display:inline-block;margin-bottom:14px;color:var(--accent);font-size:0.82rem;font-weight:800;letter-spacing:0.16em}
+.step h3{max-width:24ch;font-size:clamp(1.15rem,3vw,1.65rem);line-height:1.35;letter-spacing:-0.03em}
+.vision-section{padding:82px 10px;text-align:center}
+.vision-section .eyebrow{margin-bottom:12px}
+.vision-section h2{max-width:14ch;margin:0 auto;font-size:clamp(2.4rem,6vw,5.2rem);line-height:1}
+.vision-copy{max-width:38ch;margin:18px auto 0;color:var(--muted);font-size:1rem;line-height:1.8}
+.tech-list{display:grid;gap:16px}
+.tech-list span{font-size:1rem;padding-bottom:12px;border-bottom:1px solid rgba(23,20,17,0.08)}
+.cta-section{text-align:center;padding-top:40px;padding-bottom:40px}
+.cta-section h2{max-width:none}
+.cta-copy{max-width:40ch;margin:18px auto 0;color:var(--muted);line-height:1.7}
+.cta-section .hero-actions{justify-content:center}
+ 
+/* ── WHY SECTION ── */
+.why-section{padding:72px 0}
+.why-inner{display:grid;gap:48px}
+.why-narrative{max-width:52ch}
+.why-narrative p{font-size:clamp(1.1rem,2.4vw,1.4rem);line-height:1.7;color:var(--muted);margin-bottom:1.4em;letter-spacing:-0.02em}
+.why-narrative p strong{color:var(--text);font-weight:700}
+.why-stats{display:grid;gap:16px}
+.stat-card{border:1px solid var(--line);border-radius:24px;background:var(--surface);backdrop-filter:blur(10px);padding:24px 28px}
+.stat-number{font-family:"Newsreader",serif;font-size:clamp(2.4rem,5vw,3.6rem);font-weight:400;letter-spacing:-0.06em;color:var(--text);line-height:1;margin-bottom:6px}
+.stat-label{font-size:0.85rem;color:var(--muted);line-height:1.5}
+.why-blockquote{border-left:3px solid var(--accent);padding:20px 24px;margin:28px 0 0;background:var(--accent-soft);border-radius:0 16px 16px 0}
+.why-blockquote p{font-family:"Newsreader",serif;font-size:1.2rem;line-height:1.6;color:var(--text);font-style:italic}
+.why-blockquote cite{display:block;margin-top:10px;font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);font-style:normal}
+.trust-indicators{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.trust-pill{padding:9px 16px;border:1px solid var(--line);border-radius:999px;font-size:0.82rem;font-weight:700;background:rgba(255,255,255,0.55);color:var(--text)}
+ 
+/* ── INTELLIGENCE ENGINE ── */
+.engine-section{padding:72px 0}
+.engine-stages{display:grid;gap:12px;margin-top:40px}
+.engine-stage{
+  border:1px solid var(--line);border-radius:24px;
+  background:var(--surface);backdrop-filter:blur(10px);
+  overflow:hidden;cursor:pointer;
+  transition:border-color 300ms ease,box-shadow 300ms ease;
+}
+.engine-stage:hover,.engine-stage.active{border-color:rgba(41,95,78,0.4);box-shadow:0 8px 40px rgba(41,95,78,0.08)}
+.engine-stage-header{
+  display:flex;align-items:center;gap:16px;
+  padding:22px 26px;
+}
+.stage-number{font-size:0.75rem;font-weight:800;letter-spacing:0.16em;color:var(--accent);min-width:28px}
+.stage-label{font-size:1.15rem;font-weight:700;letter-spacing:-0.03em;flex:1}
+.stage-arrow{width:28px;height:28px;border:1px solid var(--line);border-radius:999px;display:flex;align-items:center;justify-content:center;transition:transform 220ms ease,background 220ms ease}
+.engine-stage.active .stage-arrow{background:var(--accent);border-color:var(--accent);transform:rotate(90deg)}
+.engine-stage.active .stage-arrow svg{stroke:#fff}
+.engine-stage-body{max-height:0;overflow:hidden;transition:max-height 380ms ease,padding 220ms ease}
+.engine-stage.active .engine-stage-body{max-height:400px}
+.engine-stage-content{padding:0 26px 26px;display:grid;gap:14px}
+.engine-detail-grid{display:grid;gap:10px}
+.engine-detail{padding:14px 16px;background:rgba(255,255,255,0.55);border:1px solid rgba(23,20,17,0.07);border-radius:16px}
+.engine-detail span{display:block;font-size:0.78rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.engine-detail p{font-size:0.92rem;color:var(--muted);line-height:1.6}
+.engine-connector{display:flex;align-items:center;justify-content:center;height:32px;position:relative}
+.engine-connector::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(41,95,78,0.3),rgba(41,95,78,0.1));transform:translateX(-50%)}
+.engine-flow-dot{width:8px;height:8px;border-radius:999px;background:rgba(41,95,78,0.4);z-index:1;animation:flow-pulse 2s ease-in-out infinite}
+@keyframes flow-pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+ 
+/* ── SAMPLE REPORT ── */
+.report-section{padding:72px 0}
+.report-shell{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:rgba(248,244,236,0.7);backdrop-filter:blur(12px);
+  box-shadow:0 32px 80px rgba(20,15,10,0.1);
+  overflow:hidden;
+}
+.report-topbar{
+  padding:16px 20px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,0.5);
+}
+.report-dots{display:flex;gap:6px}
+.report-dot{width:10px;height:10px;border-radius:999px}
+.report-dot:nth-child(1){background:#e8776a}
+.report-dot:nth-child(2){background:#e8ba6a}
+.report-dot:nth-child(3){background:#6abf87}
+.report-url{flex:1;background:rgba(255,255,255,0.55);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:0.78rem;color:var(--muted);font-family:monospace}
+.report-badge{padding:5px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:0.74rem;font-weight:700}
+.report-tabs{display:flex;gap:2px;padding:12px 16px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;background:rgba(255,255,255,0.3)}
+.report-tabs::-webkit-scrollbar{display:none}
+.report-tab{padding:8px 16px;border-radius:999px;font-size:0.8rem;font-weight:700;white-space:nowrap;color:var(--muted);background:transparent;border:1px solid transparent;transition:all 200ms ease;cursor:pointer}
+.report-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.report-tab:hover:not(.active){background:rgba(255,255,255,0.6);border-color:var(--line);color:var(--text)}
+.report-body{padding:24px;min-height:360px}
+.report-panel{display:none;animation:panel-in 250ms ease}
+.report-panel.active{display:block}
+@keyframes panel-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.rp-grid{display:grid;gap:12px}
+.rp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.6);border:1px solid rgba(23,20,17,0.07);border-radius:14px}
+.rp-row span{font-size:0.88rem;color:var(--muted)}
+.rp-row strong{font-size:0.92rem;text-align:right}
+.rp-badge{padding:4px 12px;border-radius:999px;font-size:0.78rem;font-weight:700}
+.rp-badge.verified{background:rgba(41,95,78,0.12);color:var(--accent)}
+.rp-badge.pending{background:rgba(180,140,60,0.12);color:#8a6a20}
+.rp-badge.risk-low{background:rgba(41,95,78,0.1);color:var(--accent)}
+.rp-badge.risk-med{background:rgba(200,120,40,0.12);color:#7a4a15}
+.rp-badge.risk-high{background:rgba(180,60,50,0.1);color:#8a2a25}
+.rp-section-label{font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;margin-top:16px}
+.rp-timeline{display:grid;gap:0}
+.rp-event{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(23,20,17,0.06)}
+.rp-event:last-child{border-bottom:none}
+.rp-event-dot{width:10px;height:10px;border-radius:999px;background:var(--accent);margin-top:4px;flex-shrink:0;box-shadow:0 0 0 4px rgba(41,95,78,0.12)}
+.rp-event-date{font-size:0.78rem;color:var(--muted);min-width:72px}
+.rp-event-desc{font-size:0.88rem;line-height:1.5}
+.rp-map-placeholder{
+  border-radius:16px;overflow:hidden;height:180px;
+  background:linear-gradient(135deg,rgba(41,95,78,0.08) 0%,rgba(41,95,78,0.04) 100%);
+  border:1px solid rgba(41,95,78,0.15);position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.rp-map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(41,95,78,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(41,95,78,0.08) 1px,transparent 1px);background-size:24px 24px}
+.rp-parcel-outline{position:absolute;inset:20% 25% 25% 20%;border:2px solid rgba(41,95,78,0.6);background:rgba(41,95,78,0.08);clip-path:polygon(10% 20%,80% 8%,92% 60%,60% 88%,8% 68%)}
+.rp-map-label{position:absolute;bottom:12px;left:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.88);font-size:0.78rem;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.rp-chart{margin-top:4px}
+.rp-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.rp-bar-label{font-size:0.8rem;color:var(--muted);min-width:80px}
+.rp-bar-track{flex:1;height:8px;background:rgba(23,20,17,0.07);border-radius:999px;overflow:hidden}
+.rp-bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width 600ms ease}
+.rp-bar-val{font-size:0.8rem;font-weight:700;min-width:36px;text-align:right}
+.rp-ai-summary{padding:20px;background:linear-gradient(135deg,rgba(41,95,78,0.06),rgba(41,95,78,0.02));border:1px solid rgba(41,95,78,0.15);border-radius:18px}
+.rp-ai-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.rp-ai-dot{width:8px;height:8px;border-radius:999px;background:var(--accent);animation:ai-pulse 2s ease-in-out infinite}
+@keyframes ai-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.rp-ai-label{font-size:0.72rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent)}
+.rp-ai-text{font-size:0.92rem;line-height:1.7;color:var(--muted)}
+.rp-risk-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.6);border:1px solid rgba(23,20,17,0.07);border-radius:14px;margin-bottom:8px}
+.rp-risk-name{font-size:0.88rem;font-weight:600}
+.rp-risk-sub{font-size:0.78rem;color:var(--muted);margin-top:2px}
+ 
+/* ── TECHNOLOGY SECTION ── */
+.technology-section{padding:72px 0}
+.tech-cards{display:grid;gap:16px;margin-top:40px}
+.tech-card{
+  border:1px solid var(--line);border-radius:24px;padding:28px;
+  background:var(--surface);backdrop-filter:blur(10px);
+  transition:transform 250ms ease,box-shadow 250ms ease,border-color 250ms ease;
+  position:relative;overflow:hidden;
+}
+.tech-card::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(41,95,78,0.05),transparent 60%);
+  opacity:0;transition:opacity 300ms ease;pointer-events:none;
+}
+.tech-card:hover::before{opacity:1}
+.tech-card:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(20,15,10,0.1);border-color:rgba(41,95,78,0.25)}
+.tech-card-icon{width:44px;height:44px;border-radius:14px;background:var(--accent-soft);border:1px solid rgba(41,95,78,0.18);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.tech-card-icon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tech-card h3{font-size:1.05rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px}
+.tech-card p{font-size:0.88rem;color:var(--muted);line-height:1.6}
+.tech-card-tag{display:inline-block;margin-top:14px;padding:4px 12px;border-radius:999px;font-size:0.72rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent)}
+ 
+/* ── ROADMAP ── */
+.roadmap-section{padding:72px 0}
+.roadmap-track{position:relative;margin-top:48px}
+.roadmap-line{position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--accent),rgba(41,95,78,0.1));pointer-events:none}
+.roadmap-items{display:grid;gap:0;padding-left:52px}
+.roadmap-item{position:relative;padding-bottom:36px}
+.roadmap-item:last-child{padding-bottom:0}
+.roadmap-dot{
+  position:absolute;left:-40px;top:4px;
+  width:20px;height:20px;border-radius:999px;border:2px solid var(--accent);background:#f6f2ea;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 300ms ease,transform 300ms ease;
+}
+.roadmap-dot::after{content:"";width:8px;height:8px;border-radius:999px;background:var(--accent);opacity:0;transition:opacity 300ms ease}
+.roadmap-item.done .roadmap-dot{background:var(--accent)}
+.roadmap-item.done .roadmap-dot::after{opacity:1;background:#fff}
+.roadmap-phase{font-size:0.7rem;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.roadmap-title{font-size:1.05rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px}
+.roadmap-desc{font-size:0.86rem;color:var(--muted);line-height:1.6;max-width:42ch}
+.roadmap-item.active .roadmap-dot{background:var(--accent);box-shadow:0 0 0 6px rgba(41,95,78,0.15);animation:roadmap-pulse 2s ease-in-out infinite}
+@keyframes roadmap-pulse{0%,100%{box-shadow:0 0 0 6px rgba(41,95,78,0.15)}50%{box-shadow:0 0 0 10px rgba(41,95,78,0.06)}}
+.roadmap-item.active .roadmap-dot::after{opacity:1;background:#fff}
+ 
+/* ── PAKISTAN MAP ── */
+.map-section{padding:72px 0}
+.map-container{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(135deg,rgba(41,95,78,0.04),rgba(91,78,62,0.03));
+  backdrop-filter:blur(10px);padding:32px;
+  overflow:hidden;position:relative;
+}
+.map-svg-wrap{position:relative;max-width:480px;margin:0 auto}
+.city-node{cursor:pointer;transition:opacity 220ms ease}
+.city-node circle.pulse-ring{animation:city-pulse 3s ease-in-out infinite}
+.city-node:nth-child(2) circle.pulse-ring{animation-delay:0.4s}
+.city-node:nth-child(3) circle.pulse-ring{animation-delay:0.8s}
+.city-node:nth-child(4) circle.pulse-ring{animation-delay:1.2s}
+.city-node:nth-child(5) circle.pulse-ring{animation-delay:1.6s}
+@keyframes city-pulse{0%,100%{r:8;opacity:0.6}50%{r:14;opacity:0.2}}
+.map-path-anim{stroke-dasharray:200;stroke-dashoffset:200;animation:path-draw 3s ease-in-out infinite alternate}
+@keyframes path-draw{to{stroke-dashoffset:0}}
+.map-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px;justify-content:center}
+.map-legend-item{display:flex;align-items:center;gap:7px;font-size:0.8rem;color:var(--muted)}
+.map-legend-dot{width:10px;height:10px;border-radius:999px}
+ 
+/* ── MANIFESTO ── */
+.manifesto-section{padding:96px 0;text-align:center;position:relative;overflow:hidden}
+.manifesto-section::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at center top,rgba(41,95,78,0.08),transparent 60%);
+  pointer-events:none;
+}
+.manifesto-section h2{
+  font-family:"Newsreader",serif;font-weight:400;letter-spacing:-0.05em;
+  font-size:clamp(2.2rem,5vw,4.4rem);line-height:1.08;
+  max-width:18ch;margin:12px auto 0;
+}
+.manifesto-body{max-width:52ch;margin:28px auto 0;display:grid;gap:20px}
+.manifesto-body p{font-size:clamp(0.96rem,1.8vw,1.1rem);color:var(--muted);line-height:1.8}
+ 
+/* ── WAITLIST / FORMS ── */
+.waitlist-section{padding:72px 0}
+.forms-grid{display:grid;gap:20px;margin-top:40px}
+.form-card{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);backdrop-filter:blur(10px);padding:32px;box-shadow:var(--shadow)}
+.form-card h3{font-size:1.15rem;font-weight:700;letter-spacing:-0.03em;margin-bottom:6px}
+.form-card p{font-size:0.88rem;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.form-field{display:grid;gap:6px;margin-bottom:14px}
+.form-field label{font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+.form-field input,.form-field select,.form-field textarea{
+  width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;
+  background:rgba(255,255,255,0.65);font-family:inherit;font-size:0.92rem;color:var(--text);
+  outline:none;transition:border-color 200ms ease;
+}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:rgba(41,95,78,0.5)}
+.form-field textarea{resize:vertical;min-height:80px}
+.form-submit{width:100%;padding:14px;border-radius:14px;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;transition:transform 200ms ease,opacity 200ms ease}
+.form-submit:hover{transform:translateY(-1px);opacity:0.9}
+.form-submit-primary{background:var(--text);color:#f7f4ed}
+.form-submit-accent{background:var(--accent);color:#fff}
+.form-success{display:none;text-align:center;padding:24px;color:var(--accent);font-weight:700}
+.form-error{display:none;text-align:center;padding:14px 0 0;color:#9b2c2c;font-weight:700;font-size:0.88rem;line-height:1.5}
+html[data-theme="dark"] .form-error{color:#ffb4a8}
+ 
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:20px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity 220ms ease,visibility 220ms ease}
+.modal.is-open{visibility:visible;opacity:1;pointer-events:auto}
+.modal-backdrop{position:absolute;inset:0;background:rgba(23,20,17,0.34);backdrop-filter:blur(8px)}
+.modal-panel{
+  position:relative;width:min(100%,860px);padding:28px;
+  border:1px solid rgba(255,255,255,0.28);border-radius:32px;
+  background:rgba(245,240,232,0.94);box-shadow:0 36px 100px rgba(16,12,8,0.24);
+  transform:translateY(18px) scale(0.98);transition:transform 260ms ease;
+  max-height:90vh;overflow-y:auto;
+}
+.modal.is-open .modal-panel{transform:translateY(0) scale(1)}
+.modal-close{position:absolute;top:18px;right:18px;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,0.55)}
+.modal-copy{max-width:58ch;margin-top:18px;color:var(--muted);line-height:1.8}
+.product-preview{display:grid;gap:16px;margin-top:28px}
+.preview-map,.preview-panel{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,0.56)}
+.preview-map{
+  min-height:260px;padding:18px;
+  background:radial-gradient(circle at top left,rgba(41,95,78,0.16),transparent 32%),linear-gradient(180deg,rgba(255,255,255,0.78) 0%,rgba(245,239,228,0.9) 100%);
+}
+.map-route{position:absolute;inset:18% 16% 20% 14%;background:rgba(41,95,78,0.08);clip-path:polygon(12% 24%,24% 22%,38% 30%,54% 26%,76% 34%,82% 48%,68% 58%,56% 66%,38% 70%,20% 62%,10% 48%);border:1px dashed rgba(41,95,78,0.32)}
+.preview-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(23,20,17,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(23,20,17,0.05) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(180deg,rgba(0,0,0,0.7),transparent 95%)}
+.parcel-shape{position:absolute;inset:22% 18% 18% 16%;clip-path:polygon(14% 18%,78% 10%,90% 62%,34% 84%,12% 54%);background:linear-gradient(180deg,rgba(41,95,78,0.28) 0%,rgba(41,95,78,0.12) 100%);border:2px solid rgba(41,95,78,0.58)}
+.parcel-point{position:absolute;width:10px;height:10px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 6px rgba(41,95,78,0.12)}
+.point-one{top:14%;left:16%}.point-two{top:8%;right:16%}.point-three{bottom:20%;right:10%}.point-four{bottom:8%;left:34%}
+.preview-pill{position:absolute;padding:10px 14px;border:1px solid rgba(23,20,17,0.08);border-radius:999px;background:rgba(255,255,255,0.86);color:var(--text);font-size:0.84rem;font-weight:700;box-shadow:0 18px 40px rgba(18,14,11,0.08)}
+.preview-pill-top{top:18px;right:18px}.preview-pill-bottom{bottom:18px;left:18px}
+.preview-panel{display:grid;gap:2px;padding:8px}
+.preview-panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px 16px}
+.preview-panel-header span{color:var(--muted);font-size:0.9rem}
+.preview-panel-header strong{padding:8px 12px;border-radius:999px;background:rgba(41,95,78,0.1);color:var(--accent);font-size:0.86rem}
+.preview-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 14px;border-radius:20px;background:rgba(255,255,255,0.58)}
+.preview-row span{color:var(--muted);font-size:0.92rem}
+.preview-row strong{text-align:right;font-size:0.98rem;line-height:1.4}
+.preview-status{display:flex;flex-wrap:wrap;gap:10px;padding:14px}
+.status-chip{padding:9px 12px;border:1px solid rgba(23,20,17,0.08);border-radius:999px;background:rgba(255,255,255,0.66);color:var(--muted);font-size:0.84rem;font-weight:700}
+.demo-frames{display:grid;gap:14px;margin-top:28px}
+.demo-card{padding:20px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,0.52)}
+.demo-card span{display:block;margin-bottom:10px;color:var(--accent);font-size:0.8rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase}
+.demo-card strong{font-size:1.05rem;line-height:1.6}
+ 
+/* ── FOOTER ── */
+.site-footer{display:grid;gap:20px;padding:18px 0 0;margin-top:14px;border-top:1px solid rgba(23,20,17,0.1)}
+.footer-brand,.footer-links{display:grid;gap:12px}
+.footer-brand p,.footer-links span,.footer-links a{color:var(--muted);line-height:1.7}
+.footer-links a{width:fit-content}
+.footer-links a:hover{color:var(--text)}
+.footer-meta{display:grid;gap:8px;padding-top:8px;border-top:1px solid rgba(23,20,17,0.08);color:var(--muted);font-size:0.94rem;line-HEIGHT:1.7}
+ 
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 700ms ease,transform 700ms ease}
+.reveal.is-visible{opacity:1;transform:translateY(0)}
+ 
+/* ── RESPONSIVE ── */
+@media(min-width:760px){
+  .page-shell{width:min(calc(100% - 56px),var(--max-width));padding-top:28px}
+  .site-nav{display:inline-flex}
+  .menu-toggle,.mobile-menu{display:none}
+  .hero-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .split-section{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);gap:32px;align-items:start}
+  .steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .tech-list{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+  .site-footer{grid-template-columns:minmax(0,1fr) minmax(0,auto);align-items:start;justify-content:space-between;padding-top:24px}
+  .footer-links{justify-items:end;text-align:right}
+  .product-preview{grid-template-columns:minmax(0,1.2fr) minmax(300px,0.8fr);align-items:stretch}
+  .footer-meta{grid-column:1 / -1;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .footer-meta span:last-child{text-align:right}
+  .demo-frames{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .why-inner{grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr);align-items:start}
+  .why-stats{grid-template-columns:repeat(2,1fr)}
+  .engine-detail-grid{grid-template-columns:repeat(2,1fr)}
+  .tech-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .forms-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(min-width:960px){
+  .tech-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:759px){
+  .site-header{padding:14px 16px}
+  .nav-cta,.theme-toggle-label{display:none}
+  .theme-toggle{width:42px;padding:0;justify-content:center}
+  .hero{padding-top:36px}
+  .modal-panel{padding:24px 20px}
+  .preview-row{flex-direction:column;align-items:flex-start}
+  .preview-row strong{text-align:left}
+  .preview-panel-header{flex-direction:column;align-items:flex-start}
+  .report-tabs{gap:4px;padding:10px 12px}
+  .report-tab{padding:7px 12px;font-size:0.74rem}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
 </head>
 <body>
-  <div class="page-shell">
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="ZameenTrace home">
-        <span class="brand-mark"></span>
-        <span>ZameenTrace</span>
-      </a>
-
-      <button
-        class="menu-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="mobileMenu"
-        aria-label="Open navigation menu"
-      >
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav class="site-nav" aria-label="Primary">
-        <a href="#problem">Problem</a>
-        <a href="#solution">Solution</a>
-        <a href="#process">How It Works</a>
-        <a href="#vision">Vision</a>
-      </nav>
-
-      <a class="nav-cta" href="#cta">Request Pilot</a>
-    </header>
-
-    <div class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-      <div class="mobile-menu-inner">
-        <a href="#problem">Problem</a>
-        <a href="#solution">Solution</a>
-        <a href="#process">How It Works</a>
-        <a href="#vision">Vision</a>
-        <a href="#cta">Request Pilot</a>
+<div class="page-shell">
+ 
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="ZameenTrace home">
+    <span class="brand-mark"></span>
+    <span>ZameenTrace</span>
+  </a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open navigation menu">
+    <span></span><span></span>
+  </button>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#intelligence">Intelligence</a>
+    <a href="#vision">Vision</a>
+    <a href="#waitlist">Early Access</a>
+  </nav>
+  <button class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false" data-theme-toggle>
+    <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+    <span class="theme-toggle-label">Dark</span>
+  </button>
+  <a class="nav-cta" href="#waitlist">Request Pilot</a>
+</header>
+ 
+<div class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+  <div class="mobile-menu-inner">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#intelligence">Intelligence</a>
+    <a href="#vision">Vision</a>
+    <a href="#waitlist">Early Access</a>
+    <button class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false" data-theme-toggle>
+      <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+      <span class="theme-toggle-label">Dark theme</span>
+    </button>
+    <a href="#waitlist">Request Pilot</a>
+  </div>
+</div>
+ 
+<main id="top">
+ 
+<!-- ── HERO ── -->
+<section class="hero section reveal">
+  <p class="eyebrow">Digital trust infrastructure for agricultural land in Pakistan</p>
+  <h1>Land, made precise.</h1>
+  <p class="hero-copy">We map agricultural land in Pakistan using GPS-based verification, parcel-level identity, and verified digital boundaries that reduce ambiguity on the ground.</p>
+  <div class="hero-actions">
+    <a class="button button-primary" href="#waitlist">Request Pilot</a>
+    <button class="button button-secondary" type="button" data-open-demo>View Demo</button>
+  </div>
+  <div class="hero-grid" aria-label="Key capabilities">
+    <div>
+      <span>GPS + GIS</span>
+      <strong>Verified boundary capture with sub-metre accuracy</strong>
+    </div>
+    <div>
+      <span>Parcel identity</span>
+      <strong>Unique IDs for every mapped plot — permanent and traceable</strong>
+    </div>
+    <div>
+      <span>Trust layer</span>
+      <strong>Clear records that reduce disputes before they escalate</strong>
+    </div>
+  </div>
+</section>
+ 
+<!-- ── TOPO DIVIDER ── -->
+<div class="topo-divider" aria-hidden="true">
+  <svg viewBox="0 0 1160 64" preserveAspectRatio="none">
+    <path d="M0,48 C120,20 240,56 360,36 C480,16 600,52 720,32 C840,12 960,44 1080,28 C1120,20 1140,32 1160,28 L1160,64 L0,64Z" fill="rgba(41,95,78,0.04)"/>
+    <path d="M0,54 C150,30 280,58 420,40 C560,22 680,54 820,38 C960,22 1060,48 1160,36 L1160,64 L0,64Z" fill="rgba(41,95,78,0.03)"/>
+    <path d="M0,32 Q200,8 400,30 Q600,52 800,24 Q1000,0 1160,20" fill="none" stroke="rgba(41,95,78,0.12)" stroke-width="1" stroke-dasharray="6,10"/>
+    <path d="M0,44 Q250,22 500,40 Q750,58 1000,30 Q1080,20 1160,34" fill="none" stroke="rgba(41,95,78,0.07)" stroke-width="1" stroke-dasharray="4,14"/>
+  </svg>
+</div>
+ 
+<!-- ── WHY IT EXISTS ── -->
+<section id="problem" class="why-section reveal">
+  <p class="eyebrow">Why ZameenTrace Exists</p>
+  <div class="why-inner">
+    <div>
+      <h2 style="max-width:16ch;margin-bottom:28px;">The system that was supposed to protect you doesn't.</h2>
+      <div class="why-narrative">
+        <p>Pakistan holds <strong>approximately 48 million agricultural parcels</strong> — most of them undocumented with any meaningful precision. Boundaries exist in collective memory. Records live in paper registers across thousands of patwari offices.</p>
+        <p>When a farmer needs to sell, lease, or use land as loan collateral, they enter a system designed around information asymmetry. <strong>Intermediaries thrive precisely because buyers and sellers cannot verify anything independently.</strong></p>
+        <p>Satellite images exist but aren't interpreted. Documents exist but can't be authenticated quickly. The result: even sophisticated investors fly to a site before spending a rupee — because no digital truth exists.</p>
+        <blockquote class="why-blockquote">
+          <p>"We lost PKR 8.4 crore in a Lahore peripheral land deal because the plot boundaries in the agreement didn't match the actual field. Three parties had paper deeds for the same land."</p>
+          <cite>— Property developer, Lahore, 2024</cite>
+        </blockquote>
+      </div>
+      <div class="trust-indicators" style="margin-top:28px">
+        <span class="trust-pill">48M+ unverified parcels</span>
+        <span class="trust-pill">₨3.2T at risk annually</span>
+        <span class="trust-pill">68% of rural disputes are boundary-related</span>
+        <span class="trust-pill">No national digital registry</span>
       </div>
     </div>
-
-    <main id="top">
-      <section class="hero section reveal">
-        <p class="eyebrow">Digital trust infrastructure for agricultural land in Pakistan</p>
-        <h1>Land, made precise.</h1>
-        <p class="hero-copy">
-          We map agricultural land in Pakistan using GPS-based verification, parcel-level identity, and verified digital boundaries that reduce ambiguity on the ground.
-        </p>
-
-        <div class="hero-actions">
-          <a class="button button-primary" href="#cta">Request Pilot</a>
-          <button class="button button-secondary" type="button" data-open-demo>View Demo</button>
-        </div>
-
-        <div class="hero-grid" aria-label="Key capabilities">
-          <div>
-            <span>GPS + GIS</span>
-            <strong>Verified boundary capture</strong>
-          </div>
-          <div>
-            <span>Parcel identity</span>
-            <strong>Unique IDs for every mapped plot</strong>
-          </div>
-          <div>
-            <span>Trust layer</span>
-            <strong>Clear records that reduce disputes before they escalate</strong>
-          </div>
-        </div>
-      </section>
-
-      <section id="problem" class="section split-section reveal">
-        <div class="section-heading">
-          <p class="eyebrow">Problem</p>
-          <h2>Land records break down where clarity should begin.</h2>
-        </div>
-
-        <div class="statement-stack">
-          <p>Records are fragmented across offices and paper trails.</p>
-          <p>Field boundaries are often known socially, not precisely.</p>
-          <p>Disputes emerge where maps and memory do not match.</p>
-          <p>Trust breaks down when verification is informal.</p>
-        </div>
-      </section>
-
-      <section id="solution" class="section split-section reveal">
-        <div class="section-heading">
-          <p class="eyebrow">Solution</p>
-          <h2>A simple system for making land legible, verifiable, and trusted at parcel level.</h2>
-        </div>
-
-        <div class="statement-stack statement-stack-compact">
-          <p>GPS-based land mapping</p>
-          <p>Unique parcel IDs for every verified plot</p>
-          <p>Neighbor verification before finalization</p>
-          <p>Transparent digital registry for traceable records</p>
-        </div>
-      </section>
-
-      <section id="process" class="section process-section reveal">
-        <div class="section-heading">
-          <p class="eyebrow">How It Works</p>
-          <h2>Three steps. No ambiguity.</h2>
-        </div>
-
-        <div class="steps">
-          <article class="step">
-            <span class="step-number">01</span>
-            <h3>Capture land boundaries using GPS</h3>
-          </article>
-          <article class="step">
-            <span class="step-number">02</span>
-            <h3>Generate precise digital map</h3>
-          </article>
-          <article class="step">
-            <span class="step-number">03</span>
-            <h3>Verify with neighbors and store securely</h3>
-          </article>
-        </div>
-      </section>
-
-      <section id="vision" class="section vision-section reveal">
-        <p class="eyebrow">Vision</p>
-        <h2>One source of truth for land ownership in Pakistan.</h2>
-        <p class="vision-copy">A calmer system for farmers, field teams, lenders, and local institutions working from the same verified boundary.</p>
-      </section>
-
-      <section class="section tech-section reveal" aria-label="Technical layer">
-        <p class="eyebrow">Tech Layer</p>
-        <div class="tech-list">
-          <span>GIS mapping</span>
-          <span>PostGIS database</span>
-          <span>Mobile-first system</span>
-          <span>Cloud infrastructure</span>
-        </div>
-      </section>
-
-      <section id="cta" class="section cta-section reveal">
-        <p class="eyebrow">Start</p>
-        <h2>Start Pilot in Your Region</h2>
-        <p class="cta-copy">Built for district pilots, agri-finance teams, and land digitization partners where land certainty matters most.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="mailto:meisumsoomro@gmail.com">Contact Team</a>
-          <a class="button button-secondary" href="mailto:meisumsoomro@gmail.com">Request Pilot</a>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="footer-brand">
-        <a class="brand" href="#top" aria-label="ZameenTrace home">
-          <span class="brand-mark"></span>
-          <span>ZameenTrace</span>
-        </a>
-        <p>Verified digital boundaries for agricultural land in Pakistan.</p>
+    <div class="why-stats">
+      <div class="stat-card reveal">
+        <div class="stat-number">68%</div>
+        <div class="stat-label">of all civil court cases in rural Punjab involve land boundary disputes — Punjab Bar Council, 2023</div>
       </div>
-
-      <div class="footer-links">
-        <span>For district pilots, agri-finance teams, and land digitization partners.</span>
-        <a href="mailto:meisumsoomro@gmail.com">meisumsoomro@gmail.com</a>
-        <a href="mailto:meisumsoomro@gmail.com">meisumsoomro@gmail.com</a>
-        <a href="#vision">One source of truth for land ownership in Pakistan.</a>
+      <div class="stat-card reveal">
+        <div class="stat-number">₨3.2T</div>
+        <div class="stat-label">estimated annual real estate transaction value at risk from unverified boundary data in Pakistan</div>
       </div>
-
-      <div class="footer-meta">
-        <span>Built for agricultural regions across Pakistan.</span>
-        <span>Minimal by design. Verifiable by default.</span>
-        <span>&copy; 2026 ZameenTrace</span>
+      <div class="stat-card reveal">
+        <div class="stat-number">12–18</div>
+        <div class="stat-label">months average time to resolve a land dispute through official channels in Sindh and Punjab</div>
       </div>
-    </footer>
-  </div>
-
-  <div class="modal" id="demoModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close-demo></div>
-    <div
-      class="modal-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="demoTitle"
-      aria-describedby="demoDescription"
-    >
-      <button class="modal-close" type="button" aria-label="Close demo" data-close-demo>Close</button>
-      <p class="eyebrow">Product Demo</p>
-      <h2 id="demoTitle">A clear record begins with a clear boundary.</h2>
-      <p class="modal-copy" id="demoDescription">
-        ZameenTrace captures GPS coordinates in the field, turns them into a precise parcel map, assigns a unique
-        parcel ID, and creates a verified digital record that neighboring stakeholders, field teams, and institutions can trust.
-      </p>
-      <div class="product-preview" aria-label="ZameenTrace product preview">
-        <div class="preview-map">
-          <div class="preview-grid"></div>
-          <div class="map-route"></div>
-          <div class="parcel-shape">
-            <span class="parcel-point point-one"></span>
-            <span class="parcel-point point-two"></span>
-            <span class="parcel-point point-three"></span>
-            <span class="parcel-point point-four"></span>
-          </div>
-          <div class="preview-pill preview-pill-top">GPS trace locked</div>
-          <div class="preview-pill preview-pill-bottom">Boundary confidence 98.4%</div>
-        </div>
-        <div class="preview-panel">
-          <div class="preview-panel-header">
-            <span>Parcel Summary</span>
-            <strong>Verified record</strong>
-          </div>
-          <div class="preview-row">
-            <span>Parcel ID</span>
-            <strong>ZT-PK-SND-0421</strong>
-          </div>
-          <div class="preview-row">
-            <span>Village</span>
-            <strong>Tando Allahyar</strong>
-          </div>
-          <div class="preview-row">
-            <span>Status</span>
-            <strong>Neighbor verified</strong>
-          </div>
-          <div class="preview-row">
-            <span>Registry</span>
-            <strong>Digital record stored</strong>
-          </div>
-          <div class="preview-status">
-            <div class="status-chip">GIS synced</div>
-            <div class="status-chip">PostGIS stored</div>
-            <div class="status-chip">Consent logged</div>
-          </div>
-        </div>
-      </div>
-      <div class="demo-frames">
-        <article class="demo-card">
-          <span>Field Capture</span>
-          <strong>Boundary points are recorded on-site with GPS by trained field teams.</strong>
-        </article>
-        <article class="demo-card">
-          <span>Parcel Identity</span>
-          <strong>Each plot receives a unique, traceable parcel ID tied to its verified map.</strong>
-        </article>
-        <article class="demo-card">
-          <span>Verification</span>
-          <strong>Neighbors review boundaries before the record is finalized and stored.</strong>
-        </article>
+      <div class="stat-card reveal">
+        <div class="stat-number">4.7%</div>
+        <div class="stat-label">of agricultural land currently has any form of machine-readable boundary data according to NDMA estimates</div>
       </div>
     </div>
   </div>
+</section>
+ 
+<!-- ── TOPO DIVIDER ── -->
+<div class="topo-divider" aria-hidden="true">
+  <svg viewBox="0 0 1160 64" preserveAspectRatio="none">
+    <path d="M0,20 C200,48 400,14 600,38 C800,60 1000,22 1160,40 L1160,64 L0,64Z" fill="rgba(91,78,62,0.04)"/>
+    <path d="M0,14 Q300,50 600,28 Q900,6 1160,32" fill="none" stroke="rgba(23,20,17,0.07)" stroke-width="1" stroke-dasharray="5,12"/>
+  </svg>
+</div>
+ 
+<!-- ── SOLUTION (existing) ── -->
+<section id="solution" class="section split-section reveal">
+  <div class="section-heading">
+    <p class="eyebrow">Solution</p>
+    <h2>A simple system for making land legible, verifiable, and trusted at parcel level.</h2>
+  </div>
+  <div class="statement-stack statement-stack-compact">
+    <p>GPS-based land mapping</p>
+    <p>Unique parcel IDs for every verified plot</p>
+    <p>Neighbor verification before finalization</p>
+    <p>Transparent digital registry for traceable records</p>
+  </div>
+</section>
+ 
+<!-- ── HOW IT WORKS (existing) ── -->
+<section id="how-it-works" class="section process-section reveal">
+  <div class="section-heading">
+    <p class="eyebrow">How It Works</p>
+    <h2>Three steps. No ambiguity.</h2>
+  </div>
+  <div class="steps">
+    <article class="step">
+      <span class="step-number">01</span>
+      <h3>Capture land boundaries using GPS</h3>
+    </article>
+    <article class="step">
+      <span class="step-number">02</span>
+      <h3>Generate precise digital map</h3>
+    </article>
+    <article class="step">
+      <span class="step-number">03</span>
+      <h3>Verify with neighbors and store securely</h3>
+    </article>
+  </div>
+</section>
+ 
+<!-- ── INTELLIGENCE ENGINE ── -->
+<section id="intelligence" class="engine-section reveal">
+  <p class="eyebrow">Intelligence Engine</p>
+  <h2 style="max-width:18ch">How the Intelligence Engine Works</h2>
+  <p style="margin-top:16px;max-width:46ch;color:var(--muted);line-height:1.7;font-size:0.96rem">Every verification request flows through four stages. Click each to explore what happens inside.</p>
+ 
+  <div class="engine-stages" role="list">
+ 
+    <div class="engine-stage active" role="listitem" tabindex="0" aria-expanded="true">
+      <div class="engine-stage-header">
+        <span class="stage-number">01</span>
+        <span class="stage-label">Discover</span>
+        <span style="font-size:0.82rem;color:var(--muted);margin-right:auto">Locate and identify the parcel</span>
+        <div class="stage-arrow"><svg viewBox="0 0 16 16" width="12" height="12"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="engine-stage-body">
+        <div class="engine-stage-content">
+          <div class="engine-detail-grid">
+            <div class="engine-detail"><span>Coordinate match</span><p>We cross-reference entered coordinates against provincial revenue databases, NDMA satellite grids, and historical patwari records to establish baseline parcel identity.</p></div>
+            <div class="engine-detail"><span>Boundary extraction</span><p>Existing boundary markers are extracted from satellite imagery using edge-detection models trained on Pakistani agricultural land typology.</p></div>
+            <div class="engine-detail"><span>Owner history pull</span><p>Where digitized records exist, we surface the chain of ownership going back to the earliest available document — currently up to 40 years in pilot districts.</p></div>
+            <div class="engine-detail"><span>Adjacent parcel scan</span><p>All parcels within 50 metres are identified and flagged, enabling proactive dispute detection before verification begins.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="engine-connector" aria-hidden="true"><div class="engine-flow-dot"></div></div>
+ 
+    <div class="engine-stage" role="listitem" tabindex="0" aria-expanded="false">
+      <div class="engine-stage-header">
+        <span class="stage-number">02</span>
+        <span class="stage-label">Verify</span>
+        <span style="font-size:0.82rem;color:var(--muted);margin-right:auto">Ground-truth with human confirmation</span>
+        <div class="stage-arrow"><svg viewBox="0 0 16 16" width="12" height="12"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="engine-stage-body">
+        <div class="engine-stage-content">
+          <div class="engine-detail-grid">
+            <div class="engine-detail"><span>GPS field capture</span><p>Field agents capture boundary coordinates at each corner with sub-metre precision using RTK-enabled devices. Timestamps and GPS metadata are cryptographically sealed on capture.</p></div>
+            <div class="engine-detail"><span>Neighbor consensus</span><p>Adjacent landowners are contacted and invited to confirm or dispute the captured boundary via the farmer-facing mobile app. Disputes trigger human review before finalization.</p></div>
+            <div class="engine-detail"><span>Document validation</span><p>Uploaded Fard, Inteqal, and sale deed documents are checked against known formatting patterns and cross-matched with digitized revenue records.</p></div>
+            <div class="engine-detail"><span>Confidence scoring</span><p>Each verification receives a confidence score (0–100) based on the number of corroborating signals: satellite match, neighbor confirmation, document validity, and field capture quality.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="engine-connector" aria-hidden="true"><div class="engine-flow-dot" style="animation-delay:0.5s"></div></div>
+ 
+    <div class="engine-stage" role="listitem" tabindex="0" aria-expanded="false">
+      <div class="engine-stage-header">
+        <span class="stage-number">03</span>
+        <span class="stage-label">Analyse</span>
+        <span style="font-size:0.82rem;color:var(--muted);margin-right:auto">Derive intelligence from verified data</span>
+        <div class="stage-arrow"><svg viewBox="0 0 16 16" width="12" height="12"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="engine-stage-body">
+        <div class="engine-stage-content">
+          <div class="engine-detail-grid">
+            <div class="engine-detail"><span>Satellite analysis</span><p>Multi-temporal satellite imagery reveals land-use change, crop rotation patterns, flood risk, and encroachment indicators over a configurable time window.</p></div>
+            <div class="engine-detail"><span>Infrastructure mapping</span><p>Road access quality, irrigation proximity, electricity coverage, and market distance are computed from open geospatial datasets and proprietary infrastructure layers.</p></div>
+            <div class="engine-detail"><span>Price benchmarking</span><p>Transaction comparables from verified neighboring parcels generate a fair-value range, reducing information asymmetry between buyers and sellers.</p></div>
+            <div class="engine-detail"><span>Risk modelling</span><p>Flood plains, seismic zones, contested boundary histories, and encroachment patterns are combined into a composite risk score with plain-language explanations.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="engine-connector" aria-hidden="true"><div class="engine-flow-dot" style="animation-delay:1s"></div></div>
+ 
+    <div class="engine-stage" role="listitem" tabindex="0" aria-expanded="false">
+      <div class="engine-stage-header">
+        <span class="stage-number">04</span>
+        <span class="stage-label">Report</span>
+        <span style="font-size:0.82rem;color:var(--muted);margin-right:auto">Deliver structured land intelligence</span>
+        <div class="stage-arrow"><svg viewBox="0 0 16 16" width="12" height="12"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="engine-stage-body">
+        <div class="engine-stage-content">
+          <div class="engine-detail-grid">
+            <div class="engine-detail"><span>Structured report</span><p>A Land Intelligence Report is generated covering ownership, verification status, satellite analysis, risk assessment, infrastructure scoring, and area growth metrics — all in one document.</p></div>
+            <div class="engine-detail"><span>Shareable record</span><p>Reports are cryptographically signed and can be shared with banks, buyers, or legal counsel via a permanent, tamper-evident URL that doesn't require any login to verify.</p></div>
+            <div class="engine-detail"><span>API delivery</span><p>For institutional clients, structured JSON responses are available via the ZameenTrace Intelligence API, enabling integration into loan origination systems and investment platforms.</p></div>
+            <div class="engine-detail"><span>Audit trail</span><p>Every data point in the report includes a source citation, a timestamp, and a confidence indicator — so downstream users know exactly how reliable each element is.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</section>
+ 
+<!-- ── SAMPLE REPORT ── -->
+<section class="report-section reveal">
+  <p class="eyebrow">Sample Report</p>
+  <h2 style="max-width:22ch;margin-bottom:12px">Explore a Land Intelligence Report</h2>
+  <p style="color:var(--muted);font-size:0.96rem;line-height:1.7;max-width:48ch;margin-bottom:28px">This is an interactive sample of a real ZameenTrace report. Navigate the tabs to see what each section contains.</p>
+ 
+  <div class="report-shell">
+    <div class="report-topbar">
+      <div class="report-dots"><div class="report-dot"></div><div class="report-dot"></div><div class="report-dot"></div></div>
+      <div class="report-url">zameentrace.com/report/ZT-PK-SND-0421</div>
+      <div class="report-badge">Live Report</div>
+    </div>
+    <div class="report-tabs" role="tablist">
+      <button class="report-tab active" role="tab" data-tab="overview">Property Overview</button>
+      <button class="report-tab" role="tab" data-tab="timeline">Ownership Timeline</button>
+      <button class="report-tab" role="tab" data-tab="verification">Verification Status</button>
+      <button class="report-tab" role="tab" data-tab="satellite">Satellite Analysis</button>
+      <button class="report-tab" role="tab" data-tab="infrastructure">Infrastructure</button>
+      <button class="report-tab" role="tab" data-tab="growth">Area Growth</button>
+      <button class="report-tab" role="tab" data-tab="risk">Risk Assessment</button>
+      <button class="report-tab" role="tab" data-tab="ai">AI Summary</button>
+    </div>
+    <div class="report-body">
+ 
+      <div class="report-panel active" id="tab-overview">
+        <div class="rp-section-label">Parcel Identity</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Parcel ID</span><strong>ZT-PK-SND-0421</strong></div>
+          <div class="rp-row"><span>Location</span><strong>Tando Allahyar, Hyderabad Division, Sindh</strong></div>
+          <div class="rp-row"><span>Area</span><strong>4.7 Acres (19,020 m²)</strong></div>
+          <div class="rp-row"><span>Land Use</span><strong>Agricultural — Irrigated Cropland</strong></div>
+          <div class="rp-row"><span>Current Crop</span><strong>Sugarcane (confirmed, satellite March 2025)</strong></div>
+          <div class="rp-row"><span>Soil Classification</span><strong>Sandy loam — moderate fertility</strong></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:20px">Coordinates</div>
+        <div class="rp-map-placeholder">
+          <div class="rp-map-grid"></div>
+          <div class="rp-parcel-outline"></div>
+          <div class="rp-map-label">ZT-PK-SND-0421 · 4.7 acres</div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">Valuation Benchmark</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Estimated Value</span><strong>₨ 82–96 lakh</strong></div>
+          <div class="rp-row"><span>Price per Acre</span><strong>₨ 17.4–20.4 lakh</strong></div>
+          <div class="rp-row"><span>Comparable basis</span><strong>11 verified transactions, 3km radius, 18 months</strong></div>
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-timeline">
+        <div class="rp-section-label">Ownership History</div>
+        <div class="rp-timeline">
+          <div class="rp-event">
+            <div class="rp-event-dot"></div>
+            <div class="rp-event-date">2024</div>
+            <div class="rp-event-desc"><strong>Current owner registered.</strong> Transfer recorded via Inteqal No. HYD-2024-3821. ZameenTrace GPS boundary captured and confirmed.</div>
+          </div>
+          <div class="rp-event">
+            <div class="rp-event-dot" style="background:rgba(41,95,78,0.4)"></div>
+            <div class="rp-event-date">2019</div>
+            <div class="rp-event-desc"><strong>Inheritance transfer.</strong> Parcel divided from a 12.3 acre holding following succession. Boundary dispute logged and resolved in 2020 — court record attached.</div>
+          </div>
+          <div class="rp-event">
+            <div class="rp-event-dot" style="background:rgba(41,95,78,0.3)"></div>
+            <div class="rp-event-date">2011</div>
+            <div class="rp-event-desc"><strong>Sale transaction.</strong> Fard document digitized from Tando Allahyar patwari records. Consideration stated: ₨ 28 lakh. Witnesses recorded.</div>
+          </div>
+          <div class="rp-event">
+            <div class="rp-event-dot" style="background:rgba(41,95,78,0.15)"></div>
+            <div class="rp-event-date">1998</div>
+            <div class="rp-event-desc"><strong>Earliest available record.</strong> Paper Jamabandi register entry. Single owner listed. Boundary described in khasra number only — no GPS coordinates available.</div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-verification">
+        <div class="rp-section-label">Verification Summary</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Overall Status</span><div class="rp-badge verified">Verified — 94/100</div></div>
+          <div class="rp-row"><span>GPS Boundary Capture</span><div class="rp-badge verified">Complete</div></div>
+          <div class="rp-row"><span>Neighbor Confirmation</span><div class="rp-badge verified">3 of 3 confirmed</div></div>
+          <div class="rp-row"><span>Document Authenticity</span><div class="rp-badge verified">Fard validated</div></div>
+          <div class="rp-row"><span>Revenue Record Match</span><div class="rp-badge verified">Match confirmed</div></div>
+          <div class="rp-row"><span>Satellite Boundary Match</span><div class="rp-badge pending">94% match — 1 corner queried</div></div>
+          <div class="rp-row"><span>Encroachment Check</span><div class="rp-badge verified">No encroachment detected</div></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">Verification Certificate</div>
+        <div style="padding:16px 18px;background:rgba(41,95,78,0.06);border:1px solid rgba(41,95,78,0.18);border-radius:16px;font-size:0.86rem;line-height:1.7;color:var(--muted)">
+          This parcel was verified by ZameenTrace Field Agent FA-104 on 14 March 2025. GPS coordinates sealed at 09:42 PKT. Certificate hash: <code style="font-family:monospace;color:var(--text)">a7f4c2...9e3d</code>. Verify at zameentrace.com/verify
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-satellite">
+        <div class="rp-section-label">Satellite Observations</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Latest image date</span><strong>March 2025 (Sentinel-2)</strong></div>
+          <div class="rp-row"><span>Land use change (5yr)</span><strong>None detected</strong></div>
+          <div class="rp-row"><span>Vegetation index (NDVI)</span><strong>0.72 — above district average</strong></div>
+          <div class="rp-row"><span>Flood inundation (2023 monsoon)</span><strong>No flooding recorded on parcel</strong></div>
+          <div class="rp-row"><span>Crop detected</span><strong>Sugarcane — high confidence</strong></div>
+          <div class="rp-row"><span>Irrigation indicator</span><strong>Canal-fed, year-round supply confirmed</strong></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">5-Year NDVI Trend</div>
+        <div class="rp-chart">
+          <div class="rp-bar-row"><span class="rp-bar-label">2020</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:58%"></div></div><span class="rp-bar-val">0.58</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2021</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:62%"></div></div><span class="rp-bar-val">0.62</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2022</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:55%"></div></div><span class="rp-bar-val">0.55</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2023</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:68%"></div></div><span class="rp-bar-val">0.68</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2024–25</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:72%"></div></div><span class="rp-bar-val">0.72</span></div>
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-infrastructure">
+        <div class="rp-section-label">Infrastructure Intelligence</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Nearest paved road</span><strong>380m — farm access track connects</strong></div>
+          <div class="rp-row"><span>Canal proximity</span><strong>120m — Lined Rohri Canal branch</strong></div>
+          <div class="rp-row"><span>Grid electricity</span><strong>On-grid — HESCO connection confirmed</strong></div>
+          <div class="rp-row"><span>Nearest market</span><strong>Tando Allahyar City — 4.2km</strong></div>
+          <div class="rp-row"><span>Nearest cold storage</span><strong>14km — National Cold Storage Hub</strong></div>
+          <div class="rp-row"><span>Mobile coverage</span><strong>4G coverage — Jazz + Telenor</strong></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">Infrastructure Score</div>
+        <div class="rp-chart">
+          <div class="rp-bar-row"><span class="rp-bar-label">Road access</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:78%"></div></div><span class="rp-bar-val">78</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">Water access</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:91%"></div></div><span class="rp-bar-val">91</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">Power supply</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:72%"></div></div><span class="rp-bar-val">72</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">Market access</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:68%"></div></div><span class="rp-bar-val">68</span></div>
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-growth">
+        <div class="rp-section-label">Area Growth Metrics — Tando Allahyar Subdistrict</div>
+        <div class="rp-grid">
+          <div class="rp-row"><span>Land price CAGR (5yr)</span><strong>+11.4% annually</strong></div>
+          <div class="rp-row"><span>Verified transactions (2024)</span><strong>247 parcels — up 34% YoY</strong></div>
+          <div class="rp-row"><span>Agri-finance activity</span><strong>Growing — ZTBL loans +22% in district</strong></div>
+          <div class="rp-row"><span>New road infrastructure</span><strong>M-9 extension within 28km</strong></div>
+          <div class="rp-row"><span>Population growth (district)</span><strong>+2.3% annual (2023 census)</strong></div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">Price Trend (₨ lakh/acre)</div>
+        <div class="rp-chart">
+          <div class="rp-bar-row"><span class="rp-bar-label">2020</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:52%"></div></div><span class="rp-bar-val">10.4</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2021</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:60%"></div></div><span class="rp-bar-val">12.0</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2022</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:67%"></div></div><span class="rp-bar-val">13.4</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2023</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:76%"></div></div><span class="rp-bar-val">15.2</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2024</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:91%"></div></div><span class="rp-bar-val">18.2</span></div>
+        </div>
+      </div>
+ 
+      <div class="report-panel" id="tab-risk">
+        <div class="rp-section-label">Risk Assessment</div>
+        <div class="rp-risk-row">
+          <div><div class="rp-risk-name">Flood Risk</div><div class="rp-risk-sub">Based on DEM, drainage patterns, and 2022–2023 flood data</div></div>
+          <div class="rp-badge risk-low">Low</div>
+        </div>
+        <div class="rp-risk-row">
+          <div><div class="rp-risk-name">Ownership Dispute Risk</div><div class="rp-risk-sub">1 historical dispute resolved 2020; no active claims</div></div>
+          <div class="rp-badge risk-low">Low</div>
+        </div>
+        <div class="rp-risk-row">
+          <div><div class="rp-risk-name">Encroachment Risk</div><div class="rp-risk-sub">No structures on boundary zone; neighbor confirmed</div></div>
+          <div class="rp-badge risk-low">Low</div>
+        </div>
+        <div class="rp-risk-row">
+          <div><div class="rp-risk-name">Document Completeness</div><div class="rp-risk-sub">Satellite boundary 94% match — 1 corner under review</div></div>
+          <div class="rp-badge risk-med">Medium</div>
+        </div>
+        <div class="rp-risk-row">
+          <div><div class="rp-risk-name">Environmental Compliance</div><div class="rp-risk-sub">No EPA restricted zone overlap; Punjab agri-use compliant</div></div>
+          <div class="rp-badge risk-low">Low</div>
+        </div>
+        <div class="rp-section-label" style="margin-top:16px">Overall Risk Score</div>
+        <div class="rp-chart">
+          <div class="rp-bar-row"><span class="rp-bar-label">Composite</span><div class="rp-bar-track"><div class="rp-bar-fill" style="width:18%"></div></div><span class="rp-bar-val">18/100</span></div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;line-height:1.6">A score below 25 indicates a low-risk parcel suitable for financing, investment, or transfer with standard due diligence.</p>
+      </div>
+ 
+      <div class="report-panel" id="tab-ai">
+        <div class="rp-ai-summary">
+          <div class="rp-ai-header">
+            <div class="rp-ai-dot"></div>
+            <span class="rp-ai-label">ZameenTrace AI Summary</span>
+          </div>
+          <div class="rp-ai-text">
+            <p style="margin-bottom:12px">Parcel ZT-PK-SND-0421 presents as a <strong>low-risk, high-confidence agricultural holding</strong> in an economically active sub-district of Hyderabad Division. The ownership record is continuous and clean, with one historical dispute that was formally resolved in 2020 and does not affect current title.</p>
+            <p style="margin-bottom:12px">The GPS boundary capture achieved 94% satellite concordance — above the district average of 81%. The single unresolved corner is under automated review and does not materially affect the overall parcel integrity or valuation.</p>
+            <p style="margin-bottom:12px">Infrastructure indicators are strong: year-round canal irrigation, on-grid electricity, and proximity to a paved road make this parcel suitable for intensified agricultural use or agri-finance collateral at estimated values between ₨ 82–96 lakh.</p>
+            <p>Land prices in this sub-district have grown at 11.4% CAGR over the past five years, driven by canal expansion and improving road connectivity. This parcel sits in the upper quartile for infrastructure scoring within a 10km radius. No environmental, legal, or structural red flags detected.</p>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,0.6);border:1px solid rgba(23,20,17,0.07);border-radius:14px;font-size:0.82rem;color:var(--muted)">
+          AI Summary generated 15 March 2025 · Based on 24 data points across 6 intelligence layers · Review by Field Agent FA-104
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+</section>
+ 
+<!-- ── TECHNOLOGY SECTION ── -->
+<section class="technology-section reveal">
+  <p class="eyebrow">Technology</p>
+  <h2 style="max-width:16ch;margin-bottom:8px">Built on real geospatial infrastructure</h2>
+  <p style="color:var(--muted);font-size:0.96rem;line-height:1.7;max-width:48ch;margin-bottom:0">Not a dashboard on top of Google Maps. ZameenTrace is a purpose-built intelligence stack for Pakistani land typology.</p>
+ 
+  <div class="tech-cards">
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+      </div>
+      <h3>GIS Mapping Engine</h3>
+      <p>PostGIS-powered spatial database with support for Pakistan's coordinate reference systems, khasra number lookup, and multi-layer boundary rendering at district scale.</p>
+      <span class="tech-card-tag">Production</span>
+    </div>
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+      </div>
+      <h3>Satellite Intelligence</h3>
+      <p>Sentinel-2 and Landsat imagery processed through custom pipelines for NDVI computation, crop classification, flood inundation mapping, and boundary edge extraction.</p>
+      <span class="tech-card-tag">Production</span>
+    </div>
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <h3>AI-Assisted Verification</h3>
+      <p>Document classification and authenticity scoring models trained on Fard, Inteqal, and Jamabandi document formats. Flags anomalies in ownership chains and boundary descriptions.</p>
+      <span class="tech-card-tag">Beta</span>
+    </div>
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/><path d="M15 12l-3-3-3 3"/></svg>
+      </div>
+      <h3>Predictive Analytics</h3>
+      <p>Price trend modelling and investment yield forecasting built on verified transaction comparables, infrastructure change signals, and district development data.</p>
+      <span class="tech-card-tag">Coming Q3 2025</span>
+    </div>
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h3>Infrastructure Monitor</h3>
+      <p>Automated detection of road changes, canal extensions, and utility grid expansions within configurable radii — surfaced as investment signals in the intelligence report.</p>
+      <span class="tech-card-tag">Coming Q4 2025</span>
+    </div>
+ 
+    <div class="tech-card reveal">
+      <div class="tech-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/><path d="M15 15l5 5M20 15l-5 5"/></svg>
+      </div>
+      <h3>Developer API</h3>
+      <p>RESTful JSON API for verified land data, intelligence reports, and geospatial lookups. Built for integration with agri-finance platforms, PropTech products, and government systems.</p>
+      <span class="tech-card-tag">2026 Roadmap</span>
+    </div>
+ 
+  </div>
+</section>
+ 
+<!-- ── VISION (existing, preserved) ── -->
+<section id="vision" class="section vision-section reveal">
+  <p class="eyebrow">Vision</p>
+  <h2>One source of truth for land ownership in Pakistan.</h2>
+  <p class="vision-copy">A calmer system for farmers, field teams, lenders, and local institutions working from the same verified boundary.</p>
+  <div class="hero-actions" style="justify-content:center;margin-top:32px">
+    <a class="button button-primary" href="#waitlist">Join the Waitlist</a>
+    <a class="button button-secondary" href="#report-section">View Sample Report</a>
+  </div>
+</section>
+ 
+<!-- ── ROADMAP ── -->
+<section class="roadmap-section reveal">
+  <p class="eyebrow">Roadmap</p>
+  <h2 style="max-width:18ch;margin-bottom:8px">From parcel verification to a nationwide intelligence layer</h2>
+  <p style="color:var(--muted);font-size:0.96rem;line-height:1.7;max-width:46ch">This is a long project. We're honest about where we are.</p>
+ 
+  <div class="roadmap-track">
+    <div class="roadmap-line" aria-hidden="true"></div>
+    <div class="roadmap-items">
+      <div class="roadmap-item done">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 1 — Complete</div>
+        <div class="roadmap-title">Property Verification Core</div>
+        <div class="roadmap-desc">GPS boundary capture, parcel ID system, neighbor verification workflow, PostGIS database, and the first Land Intelligence Report format. Piloted in 3 sub-districts of Sindh.</div>
+      </div>
+      <div class="roadmap-item active">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 2 — In Progress</div>
+        <div class="roadmap-title">Satellite Intelligence + AI Verification</div>
+        <div class="roadmap-desc">Automated satellite imagery processing, NDVI trend analysis, document authenticity scoring, and the AI-assisted summary layer. Currently in closed beta with 4 agri-finance partners.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 3 — Q4 2025</div>
+        <div class="roadmap-title">Infrastructure Monitoring + Investment Intelligence</div>
+        <div class="roadmap-desc">Automated infrastructure change detection, price forecasting models, contractor verification layer, and the first version of investment-grade parcel scoring for institutional buyers.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 4 — 2026</div>
+        <div class="roadmap-title">Developer API + Enterprise Integrations</div>
+        <div class="roadmap-desc">Public API for verified land data, integrations with ZTBL, HBL Agri, and select government revenue departments, and a white-label reporting product for institutional due diligence teams.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 5 — 2027+</div>
+        <div class="roadmap-title">Nationwide Intelligence Ecosystem</div>
+        <div class="roadmap-desc">A complete national land intelligence layer: all provinces, real-time monitoring, satellite-native boundary updates, and a public-facing transparency portal for Pakistani citizens.</div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ── PAKISTAN MAP ── -->
+<section class="map-section reveal">
+  <p class="eyebrow">Coverage</p>
+  <h2 style="max-width:18ch;margin-bottom:28px">Expanding district by district</h2>
+ 
+  <div class="map-container">
+    <div class="map-svg-wrap">
+      <svg viewBox="0 0 400 520" width="100%" aria-label="Map of Pakistan showing ZameenTrace expansion coverage by city">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(41,95,78,0.4)"/>
+          </marker>
+        </defs>
+        <!-- Simplified Pakistan outline -->
+        <path d="M 140,20 L 200,18 L 260,30 L 310,55 L 340,90 L 355,130 L 350,160 L 330,185 L 310,200 L 300,230 L 310,260 L 290,290 L 270,320 L 250,360 L 230,390 L 210,420 L 195,450 L 185,470 L 180,490 L 170,480 L 160,460 L 150,430 L 145,400 L 155,370 L 160,340 L 150,310 L 130,285 L 110,260 L 90,240 L 75,210 L 65,180 L 60,150 L 70,120 L 85,95 L 100,70 L 120,45 Z" fill="rgba(41,95,78,0.06)" stroke="rgba(41,95,78,0.25)" stroke-width="1.5"/>
+ 
+        <!-- Network paths -->
+        <line x1="148" y1="172" x2="190" y2="310" stroke="rgba(41,95,78,0.2)" stroke-width="1" stroke-dasharray="4,6"/>
+        <line x1="190" y1="310" x2="195" y2="380" stroke="rgba(41,95,78,0.3)" stroke-width="1.5" stroke-dasharray="5,5"/>
+        <line x1="195" y1="380" x2="185" y2="430" stroke="rgba(41,95,78,0.35)" stroke-width="2" class="map-path-anim"/>
+        <line x1="190" y1="310" x2="240" y2="290" stroke="rgba(41,95,78,0.15)" stroke-width="1" stroke-dasharray="3,8"/>
+        <line x1="148" y1="172" x2="220" y2="150" stroke="rgba(41,95,78,0.12)" stroke-width="1" stroke-dasharray="2,10"/>
+ 
+        <!-- City: Islamabad (planned) -->
+        <g class="city-node">
+          <circle cx="148" cy="172" r="16" fill="rgba(41,95,78,0.06)" stroke="rgba(41,95,78,0.2)" stroke-width="1"/>
+          <circle class="pulse-ring" cx="148" cy="172" r="8" fill="rgba(41,95,78,0.15)" stroke="rgba(41,95,78,0.4)" stroke-width="1"/>
+          <circle cx="148" cy="172" r="4" fill="rgba(41,95,78,0.3)"/>
+          <text x="160" y="168" font-family="Manrope,sans-serif" font-size="9" fill="rgba(23,20,17,0.55)" font-weight="600">Islamabad</text>
+          <text x="160" y="178" font-family="Manrope,sans-serif" font-size="7" fill="rgba(41,95,78,0.6)">Q4 2025</text>
+        </g>
+ 
+        <!-- City: Lahore (planned) -->
+        <g class="city-node">
+          <circle cx="200" cy="220" r="16" fill="rgba(41,95,78,0.05)" stroke="rgba(41,95,78,0.18)" stroke-width="1"/>
+          <circle class="pulse-ring" cx="200" cy="220" r="8" fill="rgba(41,95,78,0.12)" stroke="rgba(41,95,78,0.3)" stroke-width="1"/>
+          <circle cx="200" cy="220" r="4" fill="rgba(41,95,78,0.25)"/>
+          <text x="212" y="216" font-family="Manrope,sans-serif" font-size="9" fill="rgba(23,20,17,0.55)" font-weight="600">Lahore</text>
+          <text x="212" y="226" font-family="Manrope,sans-serif" font-size="7" fill="rgba(41,95,78,0.5)">Q1 2026</text>
+        </g>
+ 
+        <!-- City: Sukkur (active) -->
+        <g class="city-node">
+          <circle cx="190" cy="310" r="20" fill="rgba(41,95,78,0.1)" stroke="rgba(41,95,78,0.35)" stroke-width="1.5"/>
+          <circle class="pulse-ring" cx="190" cy="310" r="10" fill="rgba(41,95,78,0.2)" stroke="rgba(41,95,78,0.5)" stroke-width="1.5"/>
+          <circle cx="190" cy="310" r="5" fill="var(--accent)"/>
+          <text x="205" y="306" font-family="Manrope,sans-serif" font-size="9" fill="rgba(23,20,17,0.7)" font-weight="700">Sukkur</text>
+          <text x="205" y="318" font-family="Manrope,sans-serif" font-size="7" fill="rgba(41,95,78,0.7)">Active</text>
+        </g>
+ 
+        <!-- City: Hyderabad (active - pilot) -->
+        <g class="city-node">
+          <circle cx="195" cy="380" r="22" fill="rgba(41,95,78,0.14)" stroke="rgba(41,95,78,0.45)" stroke-width="2"/>
+          <circle class="pulse-ring" cx="195" cy="380" r="12" fill="rgba(41,95,78,0.25)" stroke="rgba(41,95,78,0.6)" stroke-width="2"/>
+          <circle cx="195" cy="380" r="6" fill="var(--accent)"/>
+          <text x="212" y="376" font-family="Manrope,sans-serif" font-size="10" fill="rgba(23,20,17,0.8)" font-weight="700">Hyderabad</text>
+          <text x="212" y="388" font-family="Manrope,sans-serif" font-size="8" fill="rgba(41,95,78,0.8)">Pilot District</text>
+        </g>
+ 
+        <!-- City: Tando Allahyar (pilot HQ) -->
+        <g class="city-node">
+          <circle cx="185" cy="430" r="24" fill="rgba(41,95,78,0.18)" stroke="rgba(41,95,78,0.55)" stroke-width="2"/>
+          <circle class="pulse-ring" cx="185" cy="430" r="14" fill="rgba(41,95,78,0.3)" stroke="var(--accent)" stroke-width="2"/>
+          <circle cx="185" cy="430" r="7" fill="var(--accent)"/>
+          <text x="204" y="425" font-family="Manrope,sans-serif" font-size="10" fill="rgba(23,20,17,0.9)" font-weight="800">Tando Allahyar</text>
+          <text x="204" y="437" font-family="Manrope,sans-serif" font-size="8" fill="var(--accent)" font-weight="700">Pilot HQ ✓</text>
+        </g>
+      </svg>
+    </div>
+ 
+    <div class="map-legend">
+      <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--accent)"></span>Active pilot</span>
+      <span class="map-legend-item"><span class="map-legend-dot" style="background:rgba(41,95,78,0.4)"></span>Expanding</span>
+      <span class="map-legend-item"><span class="map-legend-dot" style="background:rgba(41,95,78,0.2)"></span>Planned 2026</span>
+    </div>
+  </div>
+</section>
+ 
+<!-- ── MANIFESTO ── -->
+<section class="manifesto-section reveal">
+  <p class="eyebrow">Building Trust Through Intelligence</p>
+  <h2>Pakistan's land deserves a record as permanent as the ground itself.</h2>
+  <div class="manifesto-body">
+    <p>For generations, the value of land in Pakistan has been held hostage to fragmented records, informal knowledge, and intermediaries who profit from information asymmetry. A farmer in Sindh shouldn't need to spend six months and a lawyer's fee to prove they own what their family has farmed for forty years.</p>
+    <p>ZameenTrace is built on the belief that trust is a technical problem — that with enough verified data, enough satellite coverage, and enough ground-level confirmation, the ambiguity that enables exploitation can be systematically removed.</p>
+    <p>This is not a startup play on Pakistani real estate. It is a long project aimed at creating the infrastructure that makes the market function honestly — for farmers, for investors, for lenders, and eventually for the state.</p>
+    <p style="color:var(--accent);font-weight:700;font-size:1.05rem">We are early. We are building in Sindh first. We would rather do one district well than ten districts poorly.</p>
+  </div>
+  <div class="hero-actions" style="justify-content:center;margin-top:40px">
+    <a class="button button-accent" href="#waitlist">Join the Movement</a>
+  </div>
+</section>
+ 
+<!-- ── WAITLIST / FORMS ── -->
+<section id="waitlist" class="waitlist-section reveal">
+  <p class="eyebrow">Early Access</p>
+  <h2 style="max-width:16ch;margin-bottom:12px">Get involved before we go wide</h2>
+  <p style="color:var(--muted);font-size:0.96rem;line-height:1.7;max-width:48ch;margin-bottom:0">Whether you're a farmer, developer, investor, or institution — there's a way to participate right now.</p>
+ 
+  <div class="forms-grid" style="margin-top:40px">
+ 
+    <div class="form-card reveal">
+      <p class="eyebrow">For individuals</p>
+      <h3>Early Access Waitlist</h3>
+      <p>Be among the first farmers, landowners, and buyers to access verified land intelligence in your district.</p>
+      <form class="waitlist-form" data-form="waitlist">
+        <div class="form-field">
+          <label>Full name</label>
+          <input type="text" name="fullName" placeholder="Muhammad Ali" required/>
+        </div>
+        <div class="form-field">
+          <label>Phone / WhatsApp</label>
+          <input type="tel" name="phone" placeholder="+92 300 0000000" required/>
+        </div>
+        <div class="form-field">
+          <label>District</label>
+          <select name="district">
+            <option value="">Select district…</option>
+            <option>Hyderabad</option>
+            <option>Tando Allahyar</option>
+            <option>Sukkur</option>
+            <option>Lahore</option>
+            <option>Faisalabad</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Your role</label>
+          <select name="role">
+            <option value="">Select…</option>
+            <option>Farmer / landowner</option>
+            <option>Land buyer</option>
+            <option>Property developer</option>
+            <option>Investor</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <button type="submit" class="form-submit form-submit-primary">Join waitlist</button>
+        <div class="form-success">You're on the list. We'll be in touch within 48 hours.</div>
+        <div class="form-error" role="alert"></div>
+      </form>
+    </div>
+ 
+    <div class="form-card reveal">
+      <p class="eyebrow">For developers</p>
+      <h3>API Early Access</h3>
+      <p>Register your interest in the ZameenTrace Intelligence API. Shape what we build by telling us your integration needs.</p>
+      <form class="waitlist-form" data-form="developer">
+        <div class="form-field">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Your name" required/>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="you@company.com" required/>
+        </div>
+        <div class="form-field">
+          <label>Organization</label>
+          <input type="text" name="organization" placeholder="Company or project"/>
+        </div>
+        <div class="form-field">
+          <label>What would you build?</label>
+          <textarea name="useCase" placeholder="Describe your use case in a few sentences…"></textarea>
+        </div>
+        <button type="submit" class="form-submit form-submit-accent">Register developer interest</button>
+        <div class="form-success">Registered. We'll send API documentation when beta opens.</div>
+        <div class="form-error" role="alert"></div>
+      </form>
+    </div>
+ 
+    <div class="form-card reveal">
+      <p class="eyebrow">For institutions</p>
+      <h3>Enterprise Inquiry</h3>
+      <p>Agri-finance teams, government partners, and development organizations — let's discuss a custom integration or district pilot.</p>
+      <form class="waitlist-form" data-form="enterprise">
+        <div class="form-field">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Your name" required/>
+        </div>
+        <div class="form-field">
+          <label>Organization</label>
+          <input type="text" name="organization" placeholder="ZTBL, HBL, NDMA, etc." required/>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="you@org.pk" required/>
+        </div>
+        <div class="form-field">
+          <label>Area of interest</label>
+          <select name="interest">
+            <option value="">Select…</option>
+            <option>Agri-finance / loan collateral</option>
+            <option>Government land digitization</option>
+            <option>Investment / due diligence</option>
+            <option>Development / NGO programs</option>
+            <option>Research</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Message</label>
+          <textarea name="message" placeholder="Tell us about your organisation's needs…"></textarea>
+        </div>
+        <button type="submit" class="form-submit form-submit-primary">Send inquiry</button>
+        <div class="form-success">Message received. Expect a response within 2 business days.</div>
+        <div class="form-error" role="alert"></div>
+      </form>
+    </div>
+ 
+  </div>
+</section>
+ 
+<!-- ── CTA (existing, preserved) ── -->
+<section id="cta" class="section cta-section reveal">
+  <p class="eyebrow">Start</p>
+  <h2>Start Pilot in Your Region</h2>
+  <p class="cta-copy">Built for district pilots, agri-finance teams, and land digitization partners where land certainty matters most.</p>
+  <div class="hero-actions">
+    <a class="button button-primary" href="mailto:meisumsoomro@gmail.com">Contact Team</a>
+    <a class="button button-secondary" href="#waitlist">Request Pilot</a>
+  </div>
+</section>
+ 
+</main>
+ 
+<footer class="site-footer">
+  <div class="footer-brand">
+    <a class="brand" href="#top" aria-label="ZameenTrace home">
+      <span class="brand-mark"></span>
+      <span>ZameenTrace</span>
+    </a>
+    <p>Verified digital boundaries for agricultural land in Pakistan.</p>
+  </div>
+  <div class="footer-links">
+    <span>For district pilots, agri-finance teams, and land digitization partners.</span>
+    <a href="mailto:meisumsoomro@gmail.com">meisumsoomro@gmail.com</a>
+    <a href="#waitlist">Join early access</a>
+  </div>
+  <div class="footer-meta">
+    <span>Built for agricultural regions across Pakistan.</span>
+    <span>Minimal by design. Verifiable by default.</span>
+    <span>&copy; 2026 ZameenTrace</span>
+  </div>
+</footer>
+ 
+</div>
+ 
+<!-- ── DEMO MODAL (existing, preserved) ── -->
+<div class="modal" id="demoModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close-demo></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="demoTitle" aria-describedby="demoDescription">
+    <button class="modal-close" type="button" aria-label="Close demo" data-close-demo>Close</button>
+    <p class="eyebrow">Product Demo</p>
+    <h2 id="demoTitle">A clear record begins with a clear boundary.</h2>
+    <p class="modal-copy" id="demoDescription">ZameenTrace captures GPS coordinates in the field, turns them into a precise parcel map, assigns a unique parcel ID, and creates a verified digital record that neighboring stakeholders, field teams, and institutions can trust.</p>
+    <div class="product-preview" aria-label="ZameenTrace product preview">
+      <div class="preview-map">
+        <div class="preview-grid"></div>
+        <div class="map-route"></div>
+        <div class="parcel-shape">
+          <span class="parcel-point point-one"></span>
+          <span class="parcel-point point-two"></span>
+          <span class="parcel-point point-three"></span>
+          <span class="parcel-point point-four"></span>
+        </div>
+        <div class="preview-pill preview-pill-top">GPS trace locked</div>
+        <div class="preview-pill preview-pill-bottom">Boundary confidence 98.4%</div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-panel-header">
+          <span>Parcel Summary</span>
+          <strong>Verified record</strong>
+        </div>
+        <div class="preview-row"><span>Parcel ID</span><strong>ZT-PK-SND-0421</strong></div>
+        <div class="preview-row"><span>Village</span><strong>Tando Allahyar</strong></div>
+        <div class="preview-row"><span>Status</span><strong>Neighbor verified</strong></div>
+        <div class="preview-row"><span>Registry</span><strong>Digital record stored</strong></div>
+        <div class="preview-status">
+          <div class="status-chip">GIS synced</div>
+          <div class="status-chip">PostGIS stored</div>
+          <div class="status-chip">Consent logged</div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-frames">
+      <article class="demo-card">
+        <span>Field Capture</span>
+        <strong>Boundary points are recorded on-site with GPS by trained field teams.</strong>
+      </article>
+      <article class="demo-card">
+        <span>Parcel Identity</span>
+        <strong>Each plot receives a unique, traceable parcel ID tied to its verified map.</strong>
+      </article>
+      <article class="demo-card">
+        <span>Verification</span>
+        <strong>Neighbors review boundaries before the record is finalized and stored.</strong>
+      </article>
+    </div>
+  </div>
+</div>
+ 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"ZameenTrace","description":"A digital land mapping and trust infrastructure platform for agriculture in Pakistan.","url":"https://zameentrace.com"}
+</script>
+ 
+<script>
+// Theme toggle
+const themeToggles=document.querySelectorAll("[data-theme-toggle]");
+const themeMeta=document.querySelector('meta[name="theme-color"]');
+const storedTheme=localStorage.getItem("zt-theme");
+const prefersDark=window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
+const initialTheme=storedTheme||(prefersDark?"dark":"light");
+function setTheme(theme){
+  const isDark=theme==="dark";
+  document.documentElement.dataset.theme=theme;
+  themeMeta?.setAttribute("content",isDark?"#0a1510":"#f3efe7");
+  localStorage.setItem("zt-theme",theme);
+  themeToggles.forEach(toggle=>{
+    toggle.setAttribute("aria-pressed",String(isDark));
+    toggle.setAttribute("aria-label",`Switch to ${isDark?"light":"dark"} theme`);
+    toggle.querySelector(".theme-toggle-icon").textContent=isDark?"☀":"☾";
+    toggle.querySelector(".theme-toggle-label").textContent=isDark?"Light":"Dark";
+  });
+}
+setTheme(initialTheme);
+themeToggles.forEach(toggle=>toggle.addEventListener("click",()=>{
+  setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+}));
 
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "ZameenTrace",
-      "description": "A digital land mapping and trust infrastructure platform for agriculture in Pakistan.",
-      "url": "https://zameentrace.com"
-    }
-  </script>
-  <script src="assets/js/main.js"></script>
+// ── REVEAL ──
+const revealItems=document.querySelectorAll(".reveal");
+if("IntersectionObserver" in window){
+  const obs=new IntersectionObserver((entries,o)=>{
+    entries.forEach(e=>{if(!e.isIntersecting)return;e.target.classList.add("is-visible");o.unobserve(e.target)});
+  },{threshold:0.1,rootMargin:"0px 0px -6% 0px"});
+  revealItems.forEach(i=>obs.observe(i));
+}else{revealItems.forEach(i=>i.classList.add("is-visible"))}
+ 
+// ── MENU ──
+const menuToggle=document.querySelector(".menu-toggle");
+const mobileMenu=document.getElementById("mobileMenu");
+const mobileLinks=document.querySelectorAll(".mobile-menu a");
+function setMenuState(open){
+  if(!menuToggle||!mobileMenu)return;
+  document.body.classList.toggle("menu-open",open);
+  menuToggle.setAttribute("aria-expanded",String(open));
+  menuToggle.setAttribute("aria-label",open?"Close navigation menu":"Open navigation menu");
+  mobileMenu.setAttribute("aria-hidden",String(!open));
+}
+menuToggle?.addEventListener("click",()=>setMenuState(menuToggle.getAttribute("aria-expanded")!=="true"));
+mobileLinks.forEach(l=>l.addEventListener("click",()=>setMenuState(false)));
+setMenuState(false);
+ 
+// ── DEMO MODAL ──
+const demoModal=document.getElementById("demoModal");
+let prevFocus=null;
+function openDemo(){if(!demoModal)return;prevFocus=document.activeElement;demoModal.classList.add("is-open");demoModal.setAttribute("aria-hidden","false");document.body.classList.add("modal-open");demoModal.querySelector(".modal-close")?.focus()}
+function closeDemo(){if(!demoModal)return;demoModal.classList.remove("is-open");demoModal.setAttribute("aria-hidden","true");document.body.classList.remove("modal-open");prevFocus?.focus?.()}
+document.querySelectorAll("[data-open-demo]").forEach(b=>b.addEventListener("click",openDemo));
+document.querySelectorAll("[data-close-demo]").forEach(b=>b.addEventListener("click",closeDemo));
+ 
+// ── REPORT TABS ──
+document.querySelectorAll(".report-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    const name=tab.dataset.tab;
+    document.querySelectorAll(".report-tab").forEach(t=>t.classList.toggle("active",t===tab));
+    document.querySelectorAll(".report-panel").forEach(p=>p.classList.toggle("active",p.id==="tab-"+name));
+  });
+});
+ 
+// ── ENGINE STAGES ──
+document.querySelectorAll(".engine-stage").forEach(stage=>{
+  const toggle=()=>{
+    const isActive=stage.classList.contains("active");
+    document.querySelectorAll(".engine-stage").forEach(s=>s.classList.remove("active"));
+    document.querySelectorAll(".engine-stage").forEach(s=>s.setAttribute("aria-expanded","false"));
+    if(!isActive){stage.classList.add("active");stage.setAttribute("aria-expanded","true")}
+  };
+  stage.addEventListener("click",toggle);
+  stage.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle()}});
+});
+ 
+// ── FORMS ──
+document.querySelectorAll(".waitlist-form").forEach(form=>{
+  form.addEventListener("submit",e=>{
+    e.preventDefault();
+    const btn=form.querySelector(".form-submit");
+    const success=form.querySelector(".form-success");
+    btn.textContent="Sending…";btn.disabled=true;
+    setTimeout(()=>{
+      btn.style.display="none";
+      success.style.display="block";
+    },900);
+  });
+});
+ 
+// ── TECH CARD MOUSE GLOW ──
+document.querySelectorAll(".tech-card").forEach(card=>{
+  card.addEventListener("mousemove",e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty("--mx",((e.clientX-r.left)/r.width*100)+"%");
+    card.style.setProperty("--my",((e.clientY-r.top)/r.height*100)+"%");
+  });
+});
+ 
+// ── KEYBOARD ESC ──
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    setMenuState(false);
+    if(demoModal?.classList.contains("is-open"))closeDemo();
+  }
+});
+</script>
 </body>
 </html>

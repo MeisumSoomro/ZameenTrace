@@ -18,7 +18,7 @@ export function useAuth() {
         const result = await apiClient.getUserProfile();
 
         if (result.success) {
-          setUser(result.data);
+          setUser(result.data.user);
         } else {
           localStorage.removeItem('authToken');
           setError(result.error);
